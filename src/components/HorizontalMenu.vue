@@ -17,6 +17,7 @@
   </div>
 </template>
 
+
 <script>
 export default {
   data() {
@@ -24,45 +25,28 @@ export default {
       // Definisce gli elementi del menu con etichette, icone e percorsi associati
       menuItems: [
         { label: 'Home', icon: 'home', path: '/' },
-        { icon: 'arrow-left', action: 'goBack' },
-        { icon: 'arrow-right', action: 'goForward' },
         { label: 'Chi siamo', icon: 'users', path: '/ChiSiamo' },
         { label: 'Community', icon: 'share', path: '/Community' },
         { label: 'Profilo', icon: 'user', path: '/UserProfile' },
-        { label: 'Login', icon: 'sign-in-alt', path: '/UserAuth' },
-
+        { label: 'Login', icon: 'sign-in-alt', path: '/UserAuth' }
       ],
       hoverIndex: -1, // Indice dell'elemento attualmente in hover
       selectedIndex: -1 // Indice dell'elemento attualmente selezionato
     };
   },
   methods: {
-    // Metodo per selezionare un elemento del menu e navigare alla rotta corrispondente o eseguire un'azione
+    // Metodo per selezionare un elemento del menu e navigare alla rotta corrispondente
     selectItem(index) {
-      const selectedItem = this.menuItems[index];
-      if (selectedItem.path) {
-        // Naviga alla rotta solo se diversa da quella attuale
-        if (this.$route.path !== selectedItem.path) {
-          this.selectedIndex = index;
-          this.$router.push(selectedItem.path);
-        }
-      } else if (selectedItem.action) {
-        // Esegue l'azione associata all'elemento del menu
-        this[selectedItem.action]();
+      const selectedPath = this.menuItems[index].path;
+      // Naviga alla rotta solo se diversa da quella attuale
+      if (this.$route.path !== selectedPath) {
+        this.selectedIndex = index;
+        this.$router.push(selectedPath);
       }
-    },
-    // Metodo per andare indietro di una pagina
-    goBack() {
-      this.$router.go(-1);
-    },
-    // Metodo per andare avanti di una pagina
-    goForward() {
-      this.$router.go(1);
     }
   }
 };
 </script>
-
 
 
 <style scoped>
