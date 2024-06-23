@@ -4,6 +4,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 // Importa i componenti HomeView e ChiSiamo
 import HomeView from '../views/HomeView.vue';
 import ChiSiamo from '../views/ChiSiamo.vue';
+import RegolamentoApp from "@/views/RegolamentoApp.vue";
 
 // Definisce le rotte dell'applicazione. Ogni rotta è mappata a un componente
 const routes = [
@@ -12,6 +13,12 @@ const routes = [
     path: '/',
     name: 'HomeView',
     component: HomeView
+  },
+  {
+    // Rotta Regolamento che è mappata alla view RegolamentoApp
+    path: '/RegolamentoApp',
+    name: 'RegolamentoApp',
+    component: RegolamentoApp
   },
   {
     // Rotta '/ChiSiamo' che è mappata al componente ChiSiamo

@@ -1,6 +1,6 @@
 <template>
   <!-- Contenitore principale del componente -->
-  <div class="chisiamo">
+  <div class="regolamento">
     <!-- Mostra un messaggio di errore se c'è un errore -->
     <div v-if="error" class="error-message">
       <b>Errore caricamento testo</b>
@@ -27,7 +27,7 @@ import axios from 'axios';
 
 export default {
   // Nome del componente
-  name: 'ChiSiamo',
+  name: 'RegolamentoApp',
   // Dati iniziali del componente
   data() {
     return {
@@ -47,7 +47,7 @@ export default {
     async caricaTesto() {
       try {
         // Effettua una richiesta GET al file JSON
-        const response = await axios.get('/chisiamo.json');
+        const response = await axios.get('/regolamento.json');
         // Assegna i dati ricevuti al componente
         this.testoJson = response.data;
         // Logga la risposta per debug

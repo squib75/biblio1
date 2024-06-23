@@ -1,0 +1,58 @@
+/* styles.css */
+
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif; /* Famiglia di font */
+    -webkit-font-smoothing: antialiased; /* Antialiasing per font su WebKit */
+    -moz-osx-font-smoothing: grayscale; /* Antialiasing per font su Firefox */
+    background-color: #f0e68c; /* Colore sfondo */
+    text-align: center; /* Allineamento del testo al centro */
+    color: #2c3e50; /* Colore del testo */ /* Colore del testo */
+    min-height: 100vh; /* Altezza minima per coprire l'intera vista */
+    display: flex; /* Utilizzo del flexbox per centrare il contenuto */
+    flex-direction: column; /* Disposizione del contenuto in colonna */
+    align-items: center; /* Centra orizzontalmente il contenuto */
+    width: 100%; /* Occupa tutta la larghezza della pagina */
+    margin-top: 0; /* Margine superiore */
+    padding-bottom: 60px; /* Spazio inferiore per evitare che il contenuto venga sovrapposto al footer */
+    box-sizing: border-box; /* Include padding e bordo nella larghezza totale e altezza */
+    overflow-x: auto; /* Barra di scorrimento orizzontale */
+}
+
+/* Stili globali per i link */
+a {
+    color: #000; /* Colore del font */
+    text-decoration: none; /* Nessuna sottolineatura */
+    font-weight: bold; /* Grassetto */
+    display: inline-block; /* Consente applicazione effetti di transizione */
+
+}
+
+a:hover {
+    transform: translate(2px, -1px); /* Effetto di traslazione lieve */
+}
+
+a:visited {
+    color: #aaaad8; /* Colore del font una volta cliccato */
+}
+
+.router-link:hover {
+    color: #b62525;
+}
+
+/* Stile per il messaggio di errore */
+.error-message {
+    font-size: xxx-large;
+    color: red;
+}
+
+.testo {
+    /* Aggiunge una barre di scorrimento se il contenuto supera altezza o larghezza massime */
+    overflow-y: auto;
+    overflow-x: auto;
+    font-size: 1.2em;
+    max-width: 90%;
+    margin: 0 auto;
+    text-align: justify;
+    line-height: 1.6; /* Aumenta l'interlinea */
+    padding-top: 60px;
+}

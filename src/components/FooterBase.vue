@@ -6,8 +6,8 @@
       <ul class="footer-list">
         <!-- Email e Telefono -->
         <li class="footer-item">
-          <p><a href="mailto:info@esempio.com" class="link">Email: info@esempio.com</a></p>
-          <p><a href="tel:+391234567890" class="link">Telefono: +39 1234567890</a></p>
+          <p><a href="mailto:info@esempio.com" >Email: info@esempio.com</a></p>
+          <p><a href="tel:+391234567890" >Telefono: +39 1234567890</a></p>
         </li>
         <!-- Logo centrale -->
         <li class="footer-item logo-item">
@@ -15,7 +15,7 @@
         </li>
         <!-- Regolamento -->
         <li class="footer-item">
-          <router-link to="/regolamento" class="link">Regolamento</router-link>
+          <router-link to="/RegolamentoApp" >Regolamento</router-link>
         </li>
       </ul>
     </div>
