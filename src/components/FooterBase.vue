@@ -13,6 +13,10 @@
         <li class="footer-item logo-item">
           <img class="footer-logo" alt="Logo" src="../assets/logo.png" />
         </li>
+        <!-- Privacy -->
+        <li class="footer-item">
+          <router-link to="/PrivacyApp" >Privacy</router-link>
+        </li>
         <!-- Regolamento -->
         <li class="footer-item">
           <router-link to="/RegolamentoApp" >Regolamento</router-link>

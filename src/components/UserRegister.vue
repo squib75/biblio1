@@ -7,14 +7,14 @@
         <span class="asterisk">*</span>
       </div>
       <div class="input-group">
-        <input type="password" v-model="password" placeholder="Password" required @input="validatePassword" />
+        <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Password" required @input="validatePassword" />
         <span class="asterisk">*</span>
-        <font-awesome-icon :icon="showPassword ? 'eye' : 'eye-slash'" @click="togglePasswordVisibility" />
+        <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" @click="togglePasswordVisibility('password')" />
       </div>
       <div class="input-group">
-        <input type="password" v-model="confirmPassword" placeholder="Conferma Password" required />
+        <input :type="showConfirmPassword ? 'text' : 'password'" v-model="confirmPassword" placeholder="Conferma Password" required />
         <span class="asterisk">*</span>
-        <font-awesome-icon :icon="showConfirmPassword ? 'eye' : 'eye-slash'" @click="toggleConfirmPasswordVisibility" />
+        <font-awesome-icon :icon="showConfirmPassword ? 'eye-slash' : 'eye'" @click="togglePasswordVisibility('confirmPassword')" />
       </div>
       <div class="input-group">
         <input type="text" v-model="nickname" placeholder="Nickname" required />
@@ -35,7 +35,7 @@
       <button type="submit">Registrati</button>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       <p v-if="successMessage" class="success">{{ successMessage }}</p>
-      <p @click="$emit('switch-view', 'UserLogin')">Hai già un account? Login</p>
+      <p @click="$emit('switch-view', 'login')">Hai già un account? Login</p>
     </form>
   </div>
 </template>
@@ -62,12 +62,6 @@ export default {
     };
   },
   methods: {
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
-    },
-    toggleConfirmPasswordVisibility() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
     async register() {
       if (this.password !== this.confirmPassword) {
         this.errorMessage = 'Le password non corrispondono.';
@@ -77,29 +71,29 @@ export default {
         return;
       }
 
-      // Verifica se il nickname esiste già
-      const q = query(collection(db, "users"), where("nickname", "==", this.nickname));
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        this.errorMessage = 'Il nickname è già in uso.';
-        return;
-      }
-
       try {
+        // Controlla se il nickname è già in uso
+        const nicknameQuery = query(collection(db, 'users'), where('nickname', '==', this.nickname));
+        const nicknameSnapshot = await getDocs(nicknameQuery);
+        if (!nicknameSnapshot.empty) {
+          this.errorMessage = 'Il nickname è già in uso.';
+          return;
+        }
+
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
         const user = userCredential.user;
         await setDoc(doc(db, 'users', user.uid), {
           nickname: this.nickname,
           nome: this.nome,
           cognome: this.cognome,
-          telefono: this.telefono,
-          email: this.email // salva anche l'email dell'utente
+          telefono: this.telefono
         });
         this.successMessage = 'Registrazione avvenuta con successo.';
-        this.$emit('close');
+        this.$emit('register', this.nickname); // Passa il nickname
       } catch (error) {
-        this.errorMessage = 'Errore durante la registrazione: ' + error.message;
+        this.errorMessage = 'Errore durante la registrazione.';
       }
+
     },
     validatePassword() {
       const password = this.password;
@@ -116,30 +110,18 @@ export default {
       } else {
         this.errorMessage = '';
       }
+    },
+    togglePasswordVisibility(field) {
+      if (field === 'password') {
+        this.showPassword = !this.showPassword;
+      } else if (field === 'confirmPassword') {
+        this.showConfirmPassword = !this.showConfirmPassword;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
-.asterisk {
-  color: red;
-}
-.success {
-  color: green;
-  font-size: 0.9em;
-}
-.error {
-  color: red;
-  font-size: 0.9em;
-}
-.input-group {
-  display: flex;
-  align-items: center;
-}
-input {
-  flex: 1;
-}
+/* Aggiungi gli stili necessari qui, se necessario */
 </style>
-
-

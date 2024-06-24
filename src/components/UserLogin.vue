@@ -6,15 +6,16 @@
       <input type="password" v-model="password" placeholder="Password" required />
       <button type="submit">Login</button>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-      <p @click="$emit('switch-view', 'UserRegister')">Non hai un account? Registrati</p>
-      <p @click="$emit('switch-view', 'UserPasswordForgot')">Password dimenticata?</p>
+      <p @click="$emit('switch-view', 'register')">Non hai un account? Registrati</p>
+      <p @click="$emit('switch-view', 'forgot')">Password dimenticata?</p>
     </form>
   </div>
 </template>
 
 <script>
-import { auth } from '@/firebase';
+import { auth, db } from '@/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default {
   data() {
@@ -27,10 +28,19 @@ export default {
   methods: {
     async login() {
       try {
-        await signInWithEmailAndPassword(auth, this.email, this.password);
-        this.$emit('close');
+        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
+        const user = userCredential.user;
+
+        // Recupera il nickname dal Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          this.$emit('login', userData.nickname); // Passa il nickname
+        } else {
+          this.errorMessage = 'Utente non trovato.';
+        }
       } catch (error) {
-        this.errorMessage = 'Email o password non corretti.';
+        this.errorMessage = 'Errore durante il login. Verifica le credenziali.';
       }
     }
   }
@@ -38,42 +48,5 @@ export default {
 </script>
 
 <style scoped>
-.error {
-  color: red;
-  font-size: 0.9em;
-}
-/* Stili per i campi input */
-input {
-  width: calc(100% - 20px); /* Riduce la larghezza per mantenere il padding interno */
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-}
-
-/* Stili per i pulsanti */
-button {
-  width: calc(100% - 20px); /* Riduce la larghezza per mantenere il padding interno */
-  padding: 10px;
-  background: #b8fa7e;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #a2e36a;
-}
-
-/* Stili per i link */
-p {
-  cursor: pointer;
-  color: #007bff;
-  margin: 10px 0 0;
-}
-
-p:hover {
-  text-decoration: underline;
-}
-
+/* Aggiungi gli stili necessari qui, se necessario */
 </style>

@@ -4,38 +4,26 @@
       <div class="close-container">
         <span class="close" @click="$emit('close')">&times;</span>
       </div>
-      <UserLogin v-if="currentView === 'login'" @switch-view="switchView" @login="handleLoginSuccess" />
-      <UserRegister v-if="currentView === 'register'" @switch-view="switchView" @register="handleRegisterSuccess" />
-      <UserPasswordForgot v-if="currentView === 'forgot'" @switch-view="switchView" />
+      <h2>Logout</h2>
+      <p>Sei sicuro di voler effettuare il logout?</p>
+      <button @click="logout">Logout</button>
     </div>
   </div>
 </template>
 
 <script>
-import UserLogin from './UserLogin.vue';
-import UserRegister from './UserRegister.vue';
-import UserPasswordForgot from './UserPasswordForgot.vue';
+import { auth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export default {
-  components: {
-    UserLogin,
-    UserRegister,
-    UserPasswordForgot
-  },
-  data() {
-    return {
-      currentView: 'login'
-    };
-  },
   methods: {
-    switchView(view) {
-      this.currentView = view;
-    },
-    handleLoginSuccess(nickname) {
-      this.$emit('login', nickname);
-    },
-    handleRegisterSuccess(nickname) {
-      this.$emit('login', nickname);
+    async logout() {
+      try {
+        await signOut(auth);
+        this.$emit('logout');
+      } catch (error) {
+        console.error('Errore durante il logout', error);
+      }
     }
   }
 };
