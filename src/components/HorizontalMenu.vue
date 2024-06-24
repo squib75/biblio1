@@ -1,53 +1,52 @@
 <template>
   <div class="horizontal-menu">
     <ul>
-      <li
-          v-for="(item, index) in menuItems"
-          :key="index"
-          @mouseover="hoverIndex = index"
-          @mouseout="hoverIndex = -1"
-          @click="selectItem(index)">
-        <font-awesome-icon
-            :icon="item.icon"
-            :class="{ 'icon-hover': hoverIndex === index }"
-            class="menu-icon" />
+      <li v-for="(item, index) in menuItems" :key="index" @mouseover="hoverIndex = index" @mouseout="hoverIndex = -1" @click="handleItemClick(item)">
+        <font-awesome-icon :icon="item.icon" :class="{ 'icon-hover': hoverIndex === index }" class="menu-icon" />
         <span class="menu-label">{{ item.label }}</span>
       </li>
     </ul>
+    <UserAuth v-if="showLoginPopup" @close="showLoginPopup = false" />
   </div>
 </template>
 
-
 <script>
+import UserAuth from './UserAuth.vue';
+
 export default {
+  components: {
+    UserAuth
+  },
   data() {
     return {
-      // Definisce gli elementi del menu con etichette, icone e percorsi associati
       menuItems: [
         { label: 'Home', icon: 'home', path: '/' },
         { label: 'Chi siamo', icon: 'users', path: '/ChiSiamo' },
         { label: 'Community', icon: 'share', path: '/Community' },
         { label: 'Profilo', icon: 'user', path: '/UserProfile' },
-        { label: 'Login', icon: 'sign-in-alt', path: '/UserAuth' }
+        { label: 'Login', icon: 'sign-in-alt' } // No path for special handling
       ],
-      hoverIndex: -1, // Indice dell'elemento attualmente in hover
-      selectedIndex: -1 // Indice dell'elemento attualmente selezionato
+      hoverIndex: -1,
+      selectedIndex: -1,
+      showLoginPopup: false
     };
   },
   methods: {
-    // Metodo per selezionare un elemento del menu e navigare alla rotta corrispondente
-    selectItem(index) {
-      const selectedPath = this.menuItems[index].path;
-      // Naviga alla rotta solo se diversa da quella attuale
-      if (this.$route.path !== selectedPath) {
-        this.selectedIndex = index;
-        this.$router.push(selectedPath);
+    handleItemClick(item) {
+      if (item.path) {
+        this.selectItem(item.path);
+      } else if (item.label === 'Login') {
+        this.showLoginPopup = true;
+      }
+    },
+    selectItem(path) {
+      if (this.$route.path !== path) {
+        this.$router.push(path);
       }
     }
   }
 };
 </script>
-
 
 <style scoped>
 /* Stili per il menu orizzontale */

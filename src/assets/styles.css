@@ -16,6 +16,11 @@
     padding-bottom: 60px; /* Spazio inferiore per evitare che il contenuto venga sovrapposto al footer */
     box-sizing: border-box; /* Include padding e bordo nella larghezza totale e altezza */
     overflow-x: auto; /* Barra di scorrimento orizzontale */
+    flex: 1;
+}
+
+#content {
+      padding-bottom: 0; /* Spazio per il footer */
 }
 
 /* Stili globali per i link */

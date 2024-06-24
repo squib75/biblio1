@@ -2,6 +2,7 @@
   <div id="app">
     <!-- Menu orizzontale visibile su tutte le pagine -->
     <HorizontalMenu />
+
     <!-- Router view per caricare le viste dinamicamente -->
     <router-view />
     <FooterBase />

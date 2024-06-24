@@ -31,17 +31,20 @@ export default {
 <style scoped>
 /* Stili per il footer */
 .footer {
-  background-color: #f8f9fa;
+  background-color: rgba(100, 102, 103, 0.91);
   color: #221616;
   padding: 0.5rem 0; /* Riduce il padding verticale */
   margin: 0;
-  width: 100%; /* Assicura che il footer occupi l'intera larghezza della pagina */
+  width: 99%; /* Assicura che il footer occupi l'intera larghezza della pagina */
   display: flex;
   align-items: center;
   justify-content: center; /* Centra il contenuto orizzontalmente */
-  position: fixed; /* Rende il footer fisso */
-  bottom: 0; /* Allinea il footer al bordo inferiore della pagina */
-  z-index: 1000; /* Assicura che il footer sia sopra altri elementi della pagina */
+  position: relative;
+  bottom: 0;
+  overflow: hidden;
+   /* Rende il footer fisso */
+
+
 }
 
 /* Contenitore centrale del footer */
