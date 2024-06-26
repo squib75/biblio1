@@ -42,7 +42,7 @@
 
 <script>
 import { auth, db } from '@/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
 
 export default {
@@ -80,20 +80,29 @@ export default {
           return;
         }
 
+        // Crea l'utente con email e password
         const userCredential = await createUserWithEmailAndPassword(auth, this.email, this.password);
         const user = userCredential.user;
+
+        // Aggiorna il profilo dell'utente con il nickname
+        await updateProfile(user, {
+          displayName: this.nickname
+        });
+
+        // Salva i dati aggiuntivi dell'utente nel database
         await setDoc(doc(db, 'users', user.uid), {
           nickname: this.nickname,
           nome: this.nome,
           cognome: this.cognome,
           telefono: this.telefono
         });
+
         this.successMessage = 'Registrazione avvenuta con successo.';
         this.$emit('register', this.nickname); // Passa il nickname
       } catch (error) {
+        console.error('Errore durante la registrazione:', error);
         this.errorMessage = 'Errore durante la registrazione.';
       }
-
     },
     validatePassword() {
       const password = this.password;
@@ -121,6 +130,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 /* Aggiungi gli stili necessari qui, se necessario */
