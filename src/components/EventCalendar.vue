@@ -22,7 +22,7 @@
               <!-- Luogo dell'evento -->
               <p>{{ event.location }}</p>
             </div>
-          </div> 
+          </div>
         </div>
       </div>
     </div>
@@ -61,71 +61,64 @@ export default {
   overflow-x: auto; /* Abilita la barra di scorrimento orizzontale se necessario */
 }
 /* Imposta la larghezza massima dell'elemento in percentuale rispetto alla larghezza della finestra */
-@media (min-width: 800px) {
   .event-menu {
-    max-width: 95%; /* Ad esempio, imposta la larghezza massima al 80% della larghezza della finestra */
+    background-color: #e19b6a;
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 95%;
+    margin-left: 5px;
+
   }
-}
-
 .event-menu h2 {
-  margin-top: 0; /* Rimuove il margine superiore */
+  margin-top: 0; /* Margine superiore */
 }
-
 .event-list {
   display: flex;
   flex-wrap: wrap; /* Rende flessibile il layout */
-  gap: 20px; /* Spazio tra gli eventi */
+  gap: 10px; /* Spazio tra gli eventi */
 }
-
 .event-item {
   flex: 1 1 300px;
-  background-color: white;
+  background-color: rgb(214, 228, 243);
   border: 1px solid #ccc;
   border-radius: 8px;
   overflow: hidden;
   max-width: 45vw; /* Larghezza massima */
   max-height: 35vw; /* Altezza massima */
+  font-size: 1.3vw; /* Dimensione del font sarà il 1.6% della larghezza della finestra */
 }
-
-.event-image {
-  width: 10vw;
-  height: auto;
-  border-bottom: 1px solid #ccc;
-  display: flex;
-}
-
-.event-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0px;
-  text-align: justify;
-}
-
 .event-details {
   padding: 2px;
   overflow-y: auto;
   display: flex;
 }
-
+.event-image {
+  max-width:30%;
+  height: auto;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+}
 .event-details h3 {
   font-size: 1.1em;
-  margin: 2px;
+  margin: 7px;
   overflow: hidden; /* nasconde il testo che sfora la larghezza del container */
-  white-space: nowrap; /* impedisce il testo di andare a capo */
 }
-
-.event-details p {
-  margin: 0;
-  line-height: 1.5;
+.event-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: justify;
+  padding: 0 0 0 5px;
 }
 
 .event-metadata {
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
   text-align: justify;
-  
+}
+.event-details p {
+  margin: 0;
+  line-height: 1.5;
 }
 
 </style>
