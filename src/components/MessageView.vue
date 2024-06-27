@@ -1,13 +1,11 @@
 <template>
   <div class="message-view-popup">
-    <!-- Contenitore per il pulsante di chiusura -->
     <div class="close-container">
       <span class="close" @click="$emit('close')">&times;</span>
     </div>
-    <!-- Contenitore per i componenti MessageList e MessageForm -->
     <div class="message-container">
-      <MessageList :nickname="nickname" class="message-list" />
-      <MessageForm class="message-form" />
+      <MessageList :nickname="nickname" class="message-component"/>
+      <MessageForm :nickname="nickname" class="message-component"/>
     </div>
   </div>
 </template>
@@ -29,19 +27,19 @@ export default {
 /* Stile principale per il popup della vista messaggi */
 .message-view-popup {
   position: fixed;
+  width: 95vw; /* Adatta la larghezza del popup alla larghezza del viewport */
+  height: 90vh; /* Adatta l'altezza del popup all'altezza del viewport */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgb(224, 231, 243);
-  padding: 5px;
+  padding: 20px;
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  width: 100%;
-  height: 50%;
   max-width: 1200px;
-  box-sizing: border-box;
-  border: solid black 2px;
+  max-height: 90vh;
+  border: solid black 1px;
+  box-sizing: border-box; /* Include padding e bordo nella dimensione totale */
 }
 
 /* Contenitore per il pulsante di chiusura */
@@ -54,35 +52,27 @@ export default {
 .close {
   cursor: pointer;
   font-size: 20px;
-  border: 1px solid #ccc;
-  padding: 2px;
-  border-radius: 1px;
+  border: 1px solid black;
+  padding: 5px;
+  border-radius: 3px;
 }
 
 /* Contenitore per disporre i componenti MessageList e MessageForm affiancati */
 .message-container {
   display: flex;
+  justify-content: space-between;
+  height: calc(100% - 40px); /* Altezza adattabile per riempire il contenitore */
   gap: 10px;
+  overflow: hidden; /* Nasconde il contenuto in eccesso */
 }
 
-/* Stile per il componente MessageList */
-.message-list {
-  flex: 1;
-}
-
-/* Stile per il componente MessageForm */
-.message-form {
-  flex: 1;
-}
-
-/* Stile per i messaggi di successo */
-.success {
-  color: green;
-}
-
-/* Stile per i messaggi di errore */
-.error {
-  color: red;
+.message-component {
+  width: 48%; /* Adatta la larghezza dei componenti per occupare tutto lo spazio disponibile */
+  height: 100%;
+  background-color: #e5f1e0;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Aggiunge una barra di scorrimento verticale se necessario */
 }
 
 /* Stile per il campo textarea */

@@ -8,7 +8,8 @@
       </div>
       <div>
         <label for="message">Messaggio:</label>
-        <textarea v-model="message" id="message" autocomplete="off" required></textarea>
+        <textarea v-model="message" id="message" autocomplete="off" required maxlength="500"></textarea>
+        <small class="char-limit">Max 500 caratteri</small>
       </div>
       <button type="submit">Invia</button>
     </form>
@@ -18,10 +19,11 @@
 </template>
 
 <script>
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default {
+  props: ['nickname'],
   data() {
     return {
       to: '',
@@ -33,35 +35,40 @@ export default {
   methods: {
     async sendMessage() {
       try {
-        // Aggiungi log per verificare i dati di input
         console.log("Dati di input:", this.to, this.message);
 
-        // Verifica se i campi sono vuoti
         if (!this.to || !this.message) {
           this.errorMessage = 'Tutti i campi sono obbligatori.';
           return;
         }
 
-        // Aggiungi log per verificare il tentativo di aggiunta del documento
-        console.log("Tentativo di aggiunta del documento...");
+        console.log("Tentativo di verifica del destinatario...");
 
         // Verifica se il destinatario esiste
+        const q = query(collection(db, 'users'), where('nickname', '==', this.to));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          this.errorMessage = 'Il destinatario non esiste.';
+          return;
+        }
+
+        console.log("Destinatario verificato. Tentativo di aggiunta del documento...");
+
         const docRef = await addDoc(collection(db, 'messages'), {
           to: this.to,
+          from: this.nickname,
           message: this.message,
           timestamp: new Date()
         });
 
-        // Aggiungi log per verificare l'avvenuta aggiunta del documento
         console.log("Document written with ID: ", docRef.id);
 
-        // Pulisci i campi e mostra il messaggio di successo
         this.to = '';
         this.message = '';
         this.successMessage = 'Messaggio inviato con successo.';
         this.errorMessage = '';
       } catch (error) {
-        // Aggiungi log per verificare l'errore
         console.error("Errore durante l'invio del messaggio: ", error);
         this.errorMessage = 'Errore durante l\'invio del messaggio.';
         this.successMessage = '';
@@ -72,62 +79,80 @@ export default {
 </script>
 
 <style scoped>
+/* Contenitore principale per il modulo di invio messaggi */
 .message-list-popup {
   border-top: 0;
   padding: 0;
 }
+
+/* Stile per il titolo */
 .message-list-popup h2 {
   border-top: 0;
   padding: 0;
   font-size: 1.6vw;
 }
-.message-list-popup li {
-  border: 0;
-  padding: 0;
-  font-size: 1.2vw;
-  text-align: left;
-}
-/* Stili per le etichette */
+
+/* Stile per le etichette */
 label {
   display: block;
-  margin-bottom: 5px;
   font-weight: bold;
+  text-align: left;
+  margin: 10px 0 5px 0;
 }
 
-/* Stili per i campi di input e textarea */
-input, textarea {
+/* Stile per i campi di input */
+input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 4px;
   box-sizing: border-box;
 }
 
-/* Stili per il pulsante di invio */
-button {
+/* Stile per il campo textarea */
+textarea {
   width: 100%;
+  height: 10vw; /* Adatta l'altezza in base alla viewport width */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: none; /* Disabilita il ridimensionamento manuale */
+}
+
+/* Stile per il pulsante di invio */
+button {
+  width: 30%;
   padding: 10px;
   background-color: #28a745;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1.6vw;
 }
 
 button:hover {
   background-color: #218838;
 }
 
-/* Stili per il messaggio di successo */
+/* Stile per il messaggio di successo */
 .success {
   color: green;
   margin-top: 10px;
 }
 
-/* Stili per il messaggio di errore */
+/* Stile per il messaggio di errore */
 .error {
   color: red;
   margin-top: 10px;
+}
+
+/* Stile per la didascalia che indica il limite di caratteri */
+.char-limit {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 5px;
 }
 </style>
