@@ -4,7 +4,7 @@
       <span class="close" @click="$emit('close')">&times;</span>
     </div>
     <div class="message-container">
-      <MessageList :nickname="nickname" class="message-component"/>
+      <MessageList :nickname="nickname" @update-unread-count="updateUnreadCount" class="message-component"/>
       <MessageForm :nickname="nickname" class="message-component"/>
     </div>
   </div>
@@ -19,7 +19,12 @@ export default {
     MessageList,
     MessageForm
   },
-  props: ['nickname'], // Riceve il nickname come prop
+  props: ['nickname'],
+  methods: {
+    updateUnreadCount(count) {
+      this.$emit('update-unread-count', count);
+    }
+  }
 };
 </script>
 

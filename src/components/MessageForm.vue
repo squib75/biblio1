@@ -59,7 +59,8 @@ export default {
           to: this.to,
           from: this.nickname,
           message: this.message,
-          timestamp: new Date()
+          timestamp: new Date(),
+          read: false // Aggiungi il campo read impostato su false
         });
 
         console.log("Document written with ID: ", docRef.id);

@@ -61,3 +61,12 @@ a:visited {
     line-height: 1.6; /* Aumenta l'interlinea */
     padding-top: 60px;
 }
+.switch-view {
+    cursor: pointer;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 1.8vw;
+}
+.switch-view:hover{
+    transform: translate(2px, -1px); /* Effetto di traslazione lieve */
+}

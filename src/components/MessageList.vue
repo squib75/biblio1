@@ -1,9 +1,7 @@
 <template>
-  <!-- Contenitore principale per la lista dei messaggi -->
   <div class="message-list-popup">
     <h2><b>Messaggi Ricevuti</b></h2>
     <ul class="message-list">
-      <!-- Ciclo sui messaggi per creare la lista -->
       <li
           v-for="(message) in sortedMessages"
           :key="message.id"
@@ -12,46 +10,37 @@
           @click="toggleMessage(message.id)"
           @contextmenu.prevent="confirmDelete(message.id)"
       >
-      <label :for="'message-' + message.id">
-        <!-- Mostra il mittente del messaggio -->
-        <b>Da:</b> <i>{{ message.from }} </i>
-        <!-- Mostra la data e ora del messaggio -->
-        <b> Data e Ora:</b> <i>{{ new Date(message.timestamp.seconds * 1000).toLocaleString() }}</i>
-        <!-- A capo -->
-        <br><br>
-        <!-- Mostra il contenuto del messaggio solo se espanso -->
-        <p v-if="expandedId === message.id"><i>{{ message.message }}</i></p>
-      </label>
+        <label :for="'message-' + message.id">
+          <b>Da:</b> <i>{{ message.from }}</i>
+          <b> Data e Ora:</b> <i>{{ new Date(message.timestamp.seconds * 1000).toLocaleString() }}</i>
+          <br><br>
+          <p v-if="expandedId === message.id"><i>{{ message.message }}</i></p>
+        </label>
       </li>
     </ul>
-    <!-- Mostra eventuali messaggi di errore -->
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script>
-import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default {
-  // Riceve il nickname come prop
   props: ['nickname'],
   data() {
     return {
-      messages: [], // Array per memorizzare i messaggi ricevuti
-      errorMessage: '', // Messaggio di errore
-      expandedId: null // Identificatore del messaggio espanso
+      messages: [],
+      errorMessage: '',
+      expandedId: null
     };
   },
-  // Fetch dei messaggi al montaggio del componente
   async created() {
     await this.fetchMessages();
   },
   methods: {
-    // Metodo per recuperare i messaggi
     async fetchMessages() {
       try {
-        // Controlla se il nickname è definito
         if (!this.nickname) {
           this.errorMessage = 'Nickname non definito.';
           return;
@@ -59,57 +48,55 @@ export default {
 
         console.log("Nickname:", this.nickname);
 
-        // Query per recuperare i messaggi indirizzati al nickname
         const q = query(collection(db, 'messages'), where('to', '==', this.nickname));
         const querySnapshot = await getDocs(q);
         const messages = [];
         querySnapshot.forEach((doc) => {
           const messageData = doc.data();
-          messageData.id = doc.id; // Aggiungi l'identificatore del documento
+          messageData.id = doc.id;
           messages.push(messageData);
         });
         this.messages = messages;
+        this.updateUnreadCount();
       } catch (error) {
         console.error("Errore durante il recupero dei messaggi: ", error);
         this.errorMessage = 'Errore durante il recupero dei messaggi.';
       }
     },
-    // Metodo per espandere o comprimere un messaggio
-    async toggleMessage(id) {
+    toggleMessage(id) {
       const message = this.messages.find(msg => msg.id === id);
       if (this.expandedId === id) {
-        // Se il messaggio è già espanso, comprimi e segna come letto
         this.expandedId = null;
       } else {
-        // Espandi solo il messaggio cliccato
         this.expandedId = id;
       }
-
-      // Segna il messaggio come letto e aggiorna nel database
       if (!message.read) {
+        updateDoc(doc(db, 'messages', id), { read: true });
         message.read = true;
-        await updateDoc(doc(db, 'messages', id), { read: true });
+        this.updateUnreadCount();
       }
     },
-    // Metodo per confermare la cancellazione di un messaggio
-    async confirmDelete(id) {
-      if (confirm("Sei sicuro di voler eliminare questo messaggio?")) {
-        await this.deleteMessage(id);
+    confirmDelete(id) {
+      if (confirm('Vuoi davvero eliminare questo messaggio?')) {
+        this.deleteMessage(id);
       }
     },
-    // Metodo per cancellare un messaggio
     async deleteMessage(id) {
       try {
         await deleteDoc(doc(db, 'messages', id));
         this.messages = this.messages.filter(msg => msg.id !== id);
+        this.updateUnreadCount();
       } catch (error) {
-        console.error("Errore durante la cancellazione del messaggio: ", error);
-        this.errorMessage = 'Errore durante la cancellazione del messaggio.';
+        console.error('Errore durante l\'eliminazione del messaggio: ', error);
+        this.errorMessage = 'Errore durante l\'eliminazione del messaggio.';
       }
+    },
+    updateUnreadCount() {
+      const unreadCount = this.messages.filter(msg => !msg.read).length;
+      this.$emit('update-unread-count', unreadCount);
     }
   },
   computed: {
-    // Computed property per ordinare i messaggi dal più recente al meno recente
     sortedMessages() {
       return this.messages.slice().sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
     }

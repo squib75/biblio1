@@ -5,9 +5,10 @@
         <font-awesome-icon :icon="item.icon" :class="{ 'icon-hover': hoverIndex === index }" class="menu-icon" />
         <span class="menu-label">{{ item.label }}</span>
       </li>
-      <li v-if="isLoggedIn" @click="showMessages = true">
+      <li v-if="isLoggedIn" @click="showMessages = true" class="message-icon">
         <font-awesome-icon :icon="['fas', 'envelope']" class="menu-icon" />
         <span class="menu-label">Messaggi</span>
+        <span v-if="unreadCount > 0" class="badge">{{ unreadCount }}</span>
       </li>
       <li v-if="isLoggedIn" @click="showLogoutPopup = true">
         <font-awesome-icon :icon="['fas', 'sign-out-alt']" class="menu-icon" />
@@ -15,12 +16,12 @@
       </li>
       <li v-else @click="showLoginPopup = true">
         <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="menu-icon" />
-        <span class="menu-label">Login</span>
+        <span class="menu-label">Accesso</span>
       </li>
     </ul>
     <UserAuth v-if="showLoginPopup" @close="showLoginPopup = false" @login="handleLogin" />
     <UserLogout v-if="showLogoutPopup" @close="showLogoutPopup = false" @logout="handleLogout" />
-    <MessageView v-if="showMessages" @close="showMessages = false" :nickname="nickname" />
+    <MessageView v-if="showMessages" :nickname="nickname" @close="showMessages = false" @update-unread-count="updateUnreadCount" />
   </div>
 </template>
 
@@ -46,14 +47,15 @@ export default {
       hoverIndex: -1,
       showLoginPopup: false,
       showLogoutPopup: false,
-      showMessages: false,
+      showMessages: false, // Variabile per controllare la visualizzazione di MessageView
       isLoggedIn: false,
-      nickname: ''
+      nickname: '',
+      unreadCount: 0 // Numero di messaggi non letti
     };
   },
   computed: {
     truncatedNickname() {
-      return this.nickname.length > 10 ? this.nickname.substring(0, 15) + '...' : this.nickname;
+      return this.nickname && this.nickname.length > 10 ? this.nickname.substring(0, 10) + '...' : this.nickname;
     }
   },
   methods: {
@@ -65,16 +67,20 @@ export default {
         this.$router.push(item.path);
       }
     },
-    handleLogin(nickname) {
+    handleLogin({ nickname, unreadCount }) {
       this.nickname = nickname;
       this.isLoggedIn = true;
+      this.unreadCount = unreadCount; // Aggiorna il numero di messaggi non letti
       this.showLoginPopup = false;
     },
     handleLogout() {
       this.nickname = '';
       this.isLoggedIn = false;
       this.showLogoutPopup = false;
-      this.showMessages = false; // Nascondi il popup dei messaggi durante il logout
+      this.unreadCount = 0; // Resetta il conteggio dei messaggi non letti
+    },
+    updateUnreadCount(count) {
+      this.unreadCount = count; // Aggiorna il conteggio dei messaggi non letti
     }
   }
 };
@@ -131,12 +137,30 @@ export default {
   transform: translate(2px, -1px);
 }
 
+.menu-icon:hover {
+  color: rgba(45, 45, 46, 0.397);
+  transform: translate(2px, -1px);
+}
+
 #nickname {
   font-size: 0.9em;
   color: rgb(64, 86, 223);
   font-weight: bold;
   font-style: italic;
 
+}
+.badge {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 0.2em 0.4em;
+  position: absolute;
+  top: -2px;
+  right: -20px;
+  font-size: 0.7em;
+}
+.message-icon {
+  position: relative;
 }
 
 </style>
