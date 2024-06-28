@@ -1,11 +1,13 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import ChiSiamo from '../views/ChiSiamo.vue';
-import RegolamentoApp from "@/views/RegolamentoApp.vue";
-import PrivacyApp from "@/views/PrivacyApp.vue";
-import UserAuth from "@/components/UserAuth.vue";
-import MessageForm from "@/components/MessageForm.vue";
-import MessageList from "@/components/MessageList.vue";
+import RegolamentoApp from '@/views/RegolamentoApp.vue';
+import PrivacyApp from '@/views/PrivacyApp.vue';
+import UserAuth from '@/components/UserAuth.vue';
+import MessageForm from '@/components/MessageForm.vue';
+import MessageList from '@/components/MessageList.vue';
+import UserDashboard from '@/views/UserDashboard.vue';
+import CommunityBook from '../views/CommunityBook.vue';
 
 const routes = [
   { path: '/', name: 'HomeView', component: HomeView },
@@ -14,7 +16,9 @@ const routes = [
   { path: '/UserAuth', name: 'UserAuth', component: UserAuth },
   { path: '/ChiSiamo', name: 'ChiSiamo', component: ChiSiamo },
   { path: '/send-message', name: 'MessageForm', component: MessageForm },
-  { path: '/messages', name: 'MessageList', component: MessageList }
+  { path: '/messages', name: 'MessageList', component: MessageList },
+  { path: '/UserDashboard', name: 'DashBoard', component: UserDashboard },
+  { path: '/CommunityBook', name: 'CommunityBook', component: CommunityBook }
 ];
 
 const router = createRouter({

@@ -41,8 +41,8 @@ export default {
       menuItems: [
         { label: 'Home', icon: 'home', path: '/' },
         { label: 'Chi siamo', icon: 'users', path: '/ChiSiamo' },
-        { label: 'Community', icon: 'share', path: '/Community', requiresAuth: true },
-        { label: 'Profilo', icon: 'user', path: '/UserProfile', requiresAuth: true }
+        { label: 'Community', icon: 'share', path: '/CommunityBook', requiresAuth: true },
+        { label: 'DashBoard', icon: 'tachometer-alt', path: '/UserDashboard', requiresAuth: true }
       ],
       hoverIndex: -1,
       showLoginPopup: false,

@@ -79,7 +79,7 @@ export default {
 }
 .event-item {
   flex: 1 1 300px;
-  background-color: rgb(214, 228, 243);
+  background-color: #d6e4f3;
   border: 1px solid #ccc;
   border-radius: 8px;
   overflow: hidden;
