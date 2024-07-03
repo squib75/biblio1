@@ -62,7 +62,7 @@ export default {
     // Recupera le community e gli utenti quando il componente è creato
     await this.fetchCommunities();
     await this.fetchUsers();
-    await this.getCurrentUser(); // Aggiungi await qui
+    await this.getCurrentUser();
   },
   methods: {
     // Metodo per recuperare le community dal database

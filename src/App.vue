@@ -1,9 +1,11 @@
 <template>
-  <div id="app">
+  <div id="app" class="app-container">
     <!-- Menu orizzontale visibile su tutte le pagine -->
     <HorizontalMenu />
+    <main class="content">
     <!-- Router view per caricare le viste dinamicamente -->
     <router-view />
+    </main>
     <FooterBase />
   </div>
 </template>
@@ -20,5 +22,17 @@ export default {
   }
 };
 </script>
+<style>
+/* Gli stili sono gestiti in /assets/styles.css */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 
-<!-- Gli stili sono gestiti in /assets/styles.css -->
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+}
+</style>

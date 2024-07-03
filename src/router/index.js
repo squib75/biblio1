@@ -7,7 +7,7 @@ import UserAuth from '@/components/UserAuth.vue';
 import MessageForm from '@/components/MessageForm.vue';
 import MessageList from '@/components/MessageList.vue';
 import UserDashboard from '@/views/UserDashboard.vue';
-import CommunityBook from '../views/CommunityBook.vue';
+import CommunityBook from '@/components/CommunityBook.vue';
 
 const routes = [
   { path: '/', name: 'HomeView', component: HomeView },

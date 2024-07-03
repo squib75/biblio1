@@ -14,6 +14,8 @@
 <script>
 import { auth } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import router from '@/router'; // Importa il router di Vue
+
 
 export default {
   methods: {
@@ -21,6 +23,7 @@ export default {
       try {
         await signOut(auth);
         this.$emit('logout');
+        router.push({ name: 'HomeView' }); // Reindirizza alla homepage
       } catch (error) {
         console.error('Errore durante il logout', error);
       }

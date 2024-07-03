@@ -20,7 +20,7 @@
 }
 
 #content {
-      padding-bottom: 0; /* Spazio per il footer */
+    padding-bottom: 0; /* Spazio per il footer */
 }
 
 /* Stili globali per i link */
@@ -45,10 +45,17 @@ a:visited {
 }
 
 /* Stile per il messaggio di errore */
-.error-message {
-    font-size: xxx-large;
-    color: red;
+.success-message {
+    color: green;
+    font-size: 1.3vw;
 }
+
+.error-message {
+    color: red;
+    font-size: 1.7vw;
+}
+
+
 
 .testo {
     /* Aggiunge una barre di scorrimento se il contenuto supera altezza o larghezza massime */
@@ -70,3 +77,7 @@ a:visited {
 .switch-view:hover{
     transform: translate(2px, -1px); /* Effetto di traslazione lieve */
 }
+button {
+    margin: 5px;
+}
+
