@@ -23,6 +23,7 @@
           <span v-if="libro.regalo"> regalo -</span>
           <span v-if="libro.scambioLibro && libro.scambioLibro.length > 0"> scambio con il libro: <i>{{libro.scambioLibro[1]}} di {{libro.scambioLibro[2]}}</i></span>
         </i>
+          <button @click="richiediLibro(libro)">Richiedi</button>
         </li>
       </ul>
     </div>
@@ -34,7 +35,7 @@
 
 <script>
 import { db, auth } from '@/firebase';
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 export default {
   name: 'CercaLibroCommunity',
   data() {
@@ -193,15 +194,12 @@ export default {
           }
           // Filtra i libri che hanno almeno uno dei campi prestito, regalo, scambio o scambioLibro a true
           if (matches && (libro.prestito || libro.regalo || libro.scambio || libro.scambioLibro[0] )) {
-            // Escludi i libri del proprietario loggato
-            if (libro.userId !== this.currentUser.userId) {
-              return {
-                id: doc.id,
-                ...libro,
-                proprietario: proprietarioNickname,
-                community: comuniCommunities
-              };
-            }
+            return {
+              id: doc.id,
+              ...libro,
+              proprietario: proprietarioNickname,
+              community: comuniCommunities
+            };
           }
           return null; // Non mostra i libri che non soddisfano il criterio
         });
@@ -212,7 +210,33 @@ export default {
         console.error('Errore durante la ricerca dei libri:', error);
         this.searchPerformed = true;
       }
+    },
+    async richiediLibro(libro) {
+      try {
+        // Inserisci i dettagli della richiesta nella tabella Firebase
+        const richiestaDocRef = doc(collection(db, "richieste"));
+        await setDoc(richiestaDocRef, {
+          ...libro,
+          richiedenteId: this.currentUser.userId,
+          timestamp: serverTimestamp()
+        });
+
+        // Invia un messaggio al proprietario del libro
+        const messageDocRef = doc(collection(db, "messages"));
+        await setDoc(messageDocRef, {
+          from: "admin",
+          message: "Ciao, un utente ha richiesto uno dei tuoi libri, consulta il menu Richieste Ricevute per accettare o rifiutare il prestito",
+          read: false,
+          timestamp: serverTimestamp(),
+          to: libro.proprietario
+        });
+
+        console.log("Richiesta inviata con successo!");
+      } catch (error) {
+        console.error("Errore durante l'invio della richiesta:", error);
+      }
     }
+
   }
 };
 </script>

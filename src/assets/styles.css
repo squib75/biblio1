@@ -55,8 +55,6 @@ a:visited {
     font-size: 1.7vw;
 }
 
-
-
 .testo {
     /* Aggiunge una barre di scorrimento se il contenuto supera altezza o larghezza massime */
     overflow-y: auto;

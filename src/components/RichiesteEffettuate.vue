@@ -1,28 +1,23 @@
 <template>
-  <div class="richieste-ricevute">
-    <h3>Richieste Ricevute</h3>
+  <div class="richieste-effettuate">
+    <h3>Richieste Effettuate</h3>
     <div v-if="richieste.length > 0">
       <ul>
         <li v-for="richiesta in richieste" :key="richiesta.id">
           <div class="richiesta-info">
             <div class="libro-info">
               <strong>{{ richiesta.titolo }}</strong> di {{ richiesta.autore }}<br>
-              Richiesto da <strong>{{ richiesta.richiedenteNickname }}</strong> il {{ new Date(richiesta.timestamp.seconds * 1000).toLocaleString() }}
-            </div>
-            <div class="azioni">
-              <button @click="accettaRichiesta(richiesta)">Accetta</button>
-              <button @click="rifiutaRichiesta(richiesta)">Rifiuta</button>
+              Richiesto a <strong>{{ richiesta.nickname }}</strong> il {{ new Date(richiesta.timestamp.seconds * 1000).toLocaleString() }}
             </div>
           </div>
         </li>
       </ul>
     </div>
     <div v-else>
-      <p>Nessuna richiesta ricevuta.</p>
+      <p>Nessuna richiesta effettuata.</p>
     </div>
   </div>
 </template>
-
 
 <script>
 // Importa le funzioni necessarie da Firebase
@@ -30,19 +25,19 @@ import { db, auth } from '@/firebase';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 
 export default {
-  name: 'RichiesteRicevute',
+  name: 'RichiesteEffettuate',
   data() {
     return {
-      richieste: [], // Array per memorizzare le richieste ricevute
+      richieste: [], // Array per memorizzare le richieste effettuate
     };
   },
   // Metodo chiamato quando il componente viene creato
   async created() {
-    await this.fetchRichiesteRicevute(); // Recupera le richieste ricevute
+    await this.fetchRichiesteEffettuate(); // Recupera le richieste effettuate
   },
   methods: {
-    // Metodo per recuperare le richieste ricevute dal database
-    async fetchRichiesteRicevute() {
+    // Metodo per recuperare le richieste effettuate dal database
+    async fetchRichiesteEffettuate() {
       try {
         // Ottiene l'utente autenticato
         const user = auth.currentUser;
@@ -51,26 +46,18 @@ export default {
           return;
         }
 
-        // Recupera il nickname dell'utente autenticato
-        const userNickname = await this.getNickname(user.uid);
-        if (userNickname === 'Sconosciuto') {
-          console.error('Nickname utente non trovato.');
-          return;
-        }
-
-        // Recupera i documenti della collezione 'LibriRichiesti' da Firebase
-        const querySnapshot = await getDocs(query(collection(db, 'richieste'), where('proprietario', '==', userNickname)));
+        // Recupera i documenti della collezione 'richieste' da Firebase
+        const querySnapshot = await getDocs(query(collection(db, 'richieste'), where('richiedenteId', '==', user.uid)));
         const richieste = [];
 
-        // Usa un ciclo for...of per gestire le promesse in modo corretto
+        // Estrae i dati di ogni richiesta e li memorizza nell'array richieste
         for (const doc of querySnapshot.docs) {
-          // Estrae i dati di ogni richiesta e li memorizza nell'array richieste
           const richiestaData = doc.data();
           richiestaData.id = doc.id;
-          const richiedenteNickname = await this.getNickname(richiestaData.richiedenteId);
+          const nickname = await this.getNickname(richiestaData.userId);
           richieste.push({
             ...richiestaData,
-            richiedenteNickname
+            nickname // Aggiungi il nickname recuperato
           });
         }
 
@@ -79,33 +66,32 @@ export default {
         console.error('Errore durante il recupero delle richieste:', error);
       }
     },
-    // Metodo per ottenere il nickname dell'utente dato il suo ID
+    // Metodo per ottenere il nickname dell'utente
     async getNickname(userId) {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
         if (userDoc.exists()) {
-          const userData = userDoc.data();
-          return userData.nickname || 'Sconosciuto';
+          return userDoc.data().nickname;
         } else {
+          console.error('Nessun documento trovato per l\'utente:', userId);
           return 'Sconosciuto';
         }
       } catch (error) {
         console.error('Errore durante il recupero del nickname:', error);
-        return 'Sconosciuto';
+        return 'Errore';
       }
-    },
-
+    }
   }
 };
 </script>
 
 <style scoped>
-.richieste-ricevute {
+.richieste-effettuate {
   margin: 20px;
   text-align: left; /* Assicura che tutto sia allineato a sinistra */
 }
 
-.richieste-ricevute ul {
+.richieste-effettuate ul {
   list-style: none;
   padding: 0;
 }
@@ -120,10 +106,6 @@ export default {
   flex-grow: 1; /* Occupa lo spazio disponibile */
 }
 
-.azioni {
-  display: flex; /* Allinea i pulsanti su una singola riga */
-}
-
 .richieste-ricevute li {
   margin-bottom: 10px;
 }
@@ -132,5 +114,3 @@ export default {
   margin-right: 10px;
 }
 </style>
-
-
