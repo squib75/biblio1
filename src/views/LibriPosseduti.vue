@@ -26,20 +26,20 @@
         <h3>Modifica Disponibilità</h3>
         <!-- Checkbox per modificare la disponibilità del libro -->
         <label>
-          <input type="checkbox" v-model="selectedLibro.prestito" />
+          <input type="checkbox" v-model="selectedLibro.prestito"/>
           Disponibile per prestito
         </label>
         <label>
-          <input type="checkbox" v-model="selectedLibro.scambio" />
+          <input type="checkbox" v-model="selectedLibro.scambio"/>
           Disponibile per scambio
         </label>
         <label>
-          <input type="checkbox" v-model="selectedLibro.regalo" />
+          <input type="checkbox" v-model="selectedLibro.regalo"/>
           Disponibile per regalo
         </label>
         <div>
           <label>
-            <input type="checkbox" v-model="selectedLibro.scambioLibro[0]" @change="checkScambioLibro" />
+            <input type="checkbox" v-model="selectedLibro.scambioLibro[0]" @change="checkScambioLibro"/>
             Disponibile per scambio con libro specifico
           </label>
         </div>
@@ -51,22 +51,21 @@
   <!-- Popup per CercaLibro -->
   <div v-if="showCercaLibroPopup1" class="popup">
     <div class="popup-content">
-      <CercaLibro @aggiungi-libro="aggiungiNuovoLibro" />
+      <CercaLibro @aggiungi-libro="aggiungiNuovoLibro"/>
       <button @click="closeCercaLibroPopup">Chiudi</button>
     </div>
   </div>
   <div v-if="showCercaLibroPopup2" class="popup">
     <div class="popup-content">
-      <CercaLibro @aggiungi-libro="aggiungiLibro" />
+      <CercaLibro @aggiungi-libro="aggiungiLibro"/>
       <button @click="closeCercaLibroPopup">Chiudi</button>
     </div>
   </div>
 </template>
 
-
 <script>
-import { db, auth } from '@/firebase'; // Importa l'autenticazione e il database di Firebase
-import { collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
+import {db, auth} from '@/firebase'; // Importa l'autenticazione e il database di Firebase
+import {collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc, getDoc} from 'firebase/firestore';
 import CercaLibro from '@/components/CercaLibro.vue'; // Importa il componente CercaLibro
 
 export default {
@@ -88,10 +87,17 @@ export default {
   },
   async created() {
     // Quando il componente è creato, carica l'utente corrente e i suoi libri
-    const user = auth.currentUser;
-    if (user) {
-      this.user = user;
+    this.user = auth.currentUser;
+    if (this.user) {
       await this.loadLibri();
+    } else {
+      // Aggiungi un listener per l'autenticazione se l'utente non è ancora disponibile
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          this.user = user;
+          await this.loadLibri();
+        }
+      });
     }
   },
   methods: {
@@ -99,7 +105,7 @@ export default {
       // Carica i libri dell'utente corrente dal database
       try {
         const libriSnapshot = await getDocs(query(collection(db, 'libri'), where('userId', '==', this.user.uid)));
-        this.libri = libriSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), showDisponibilitaMenu: false }));
+        this.libri = libriSnapshot.docs.map(doc => ({id: doc.id, ...doc.data(), showDisponibilitaMenu: false}));
       } catch (error) {
         console.error('Errore durante il caricamento dei libri:', error);
       }
@@ -198,7 +204,7 @@ export default {
           nuovoLibro.userId = user.uid; // Aggiungi l'ID dell'utente al libro
           const libroRef = await addDoc(collection(db, 'libri'), nuovoLibro);
           // Aggiungi il libro alla lista locale con l'ID ottenuto da Firebase
-          this.libri.push({ id: libroRef.id, ...nuovoLibro });
+          this.libri.push({id: libroRef.id, ...nuovoLibro});
           this.message = 'Libro aggiunto con successo';
           this.messageType = 'success';
           this.showCercaLibroPopup1 = false;
@@ -216,6 +222,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .libri-posseduti-container {

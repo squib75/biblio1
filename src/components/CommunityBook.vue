@@ -1,11 +1,10 @@
 <template>
   <div class="community-book">
-    <div class="title"><h1>Community - <i class = "small-text">Elenco dei gruppi di appassionati di lettura disponibili.</i></h1>
+    <div class="title"><h1>Community - <i class="small-text">Elenco dei gruppi di appassionati di lettura disponibili.</i></h1>
       <img class="logo" alt="Community" src="../assets/community.png" />
     </div>
-      <h3>Leggi la descrizione, guarda il luogo e scegli quelle più adatte a te!</h3>
-      <h4>Le Community vivono dei propri iscritti: condividi i tuoi libri e partecipa agli eventi del tuo gruppo!</h4>
-
+    <h3>Leggi la descrizione, guarda il luogo e scegli quelle più adatte a te!</h3>
+    <h4>Le Community vivono dei propri iscritti: condividi i tuoi libri e partecipa agli eventi del tuo gruppo!</h4>
 
     <div class="community-grid">
       <!-- Ciclo attraverso le community e visualizzo nome, indirizzo e numero di iscritti -->
@@ -62,7 +61,18 @@ export default {
     // Recupera le community e gli utenti quando il componente è creato
     await this.fetchCommunities();
     await this.fetchUsers();
-    await this.getCurrentUser();
+
+    const user = auth.currentUser;
+    if (user) {
+      await this.getCurrentUser();
+    } else {
+      // Aggiungi un listener per l'autenticazione se l'utente non è ancora disponibile
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          await this.getCurrentUser();
+        }
+      });
+    }
   },
   methods: {
     // Metodo per recuperare le community dal database
@@ -106,13 +116,20 @@ export default {
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          this.currentUser = userDoc.data();
+          const userData = userDoc.data();
+          // Assicurati che Community sia inizializzato come array
+          userData.Community = userData.Community || [];
+          this.currentUser = userData;
         }
       }
     },
     // Metodo per verificare se l'utente è iscritto a una community
     isUserSubscribed(communityName) {
-      return this.currentUser && this.currentUser.Community.includes(communityName);
+      // Verifica che currentUser e currentUser.Community non siano undefined
+      if (!this.currentUser || !this.currentUser.Community) {
+        return false;
+      }
+      return this.currentUser.Community.includes(communityName);
     },
     // Metodo per iscriversi a una community
     async subscribeToCommunity(communityName) {
@@ -122,6 +139,9 @@ export default {
           await updateDoc(userRef, {
             Community: arrayUnion(communityName)
           });
+          if (!this.currentUser.Community) {
+            this.currentUser.Community = [];
+          }
           this.currentUser.Community.push(communityName);
           alert(`Iscritto a ${communityName}`);
           await this.fetchUsers(); // Aggiorna la lista degli utenti
@@ -180,7 +200,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 /* Stile per il contenitore principale del Community Book */

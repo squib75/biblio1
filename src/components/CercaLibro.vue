@@ -49,7 +49,8 @@ export default {
       genere: '',
       descrizione: '',
       message: '',
-      messageType: ''
+      messageType: '',
+      nickname: ''
     };
   },
   methods: {
@@ -99,7 +100,8 @@ export default {
         prestito: false,
         scambio: false,
         regalo: false,
-        scambioLibro: {}
+        scambioLibro: {},
+        nickname: null
       };
       this.$emit('aggiungiLibro', nuovoLibro);
       this.message = 'Libro aggiunto con successo';

@@ -22,7 +22,7 @@
           <span v-if="libro.scambio"> scambio -</span>
           <span v-if="libro.regalo"> regalo -</span>
           <span v-if="libro.scambioLibro && libro.scambioLibro.length > 0"> scambio con il libro: <i>{{libro.scambioLibro[1]}} di {{libro.scambioLibro[2]}}</i></span>
-          </i>
+        </i>
         </li>
       </ul>
     </div>
@@ -35,7 +35,6 @@
 <script>
 import { db, auth } from '@/firebase';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
-
 export default {
   name: 'CercaLibroCommunity',
   data() {
@@ -97,11 +96,10 @@ export default {
         // Recupera i dati dell'utente dalla collezione 'users'
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          this.currentUser = userDoc.data(); // Memorizza i dati dell'utente nel componente
+          this.currentUser = { ...userDoc.data(), userId: user.uid }; // Memorizza i dati dell'utente nel componente, includendo userId
         }
       }
     },
-
     async getNickname(userId) {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
@@ -116,7 +114,6 @@ export default {
         return 'Sconosciuto';
       }
     },
-
     async getCommonCommunities(userId) {
       try {
         const userDoc = await getDoc(doc(db, 'users', userId));
@@ -132,22 +129,18 @@ export default {
         return [];
       }
     },
-
     async cercaLibri(categoria) {
       if (!this.searchQuery) {
         console.log('Campo di ricerca vuoto.');
         return;
       }
-
       this.risultati = []; // Resetta i risultati della ricerca
       this.searchPerformed = false; // Resetta il flag della ricerca
-
       const user = auth.currentUser;
       if (!user) {
         console.error('Utente non autenticato.');
         return;
       }
-
       try {
         // Verifica se l'utente è iscritto a delle community
         if (!this.currentUser || !this.currentUser.Community || this.currentUser.Community.length === 0) {
@@ -155,9 +148,7 @@ export default {
           this.searchPerformed = true;
           return;
         }
-
         const userCommunityIds = this.currentUser.Community;
-
         // Recupera tutti gli utenti iscritti alle stesse community
         const usersSnapshot = await getDocs(collection(db, 'users'));
         const userIds = usersSnapshot.docs
@@ -167,23 +158,25 @@ export default {
               return userCommunities.some(communityId => userCommunityIds.includes(communityId));
             })
             .map(doc => doc.id);
-
         if (userIds.length === 0) {
           console.log('Nessun altro utente trovato nelle stesse community.');
           this.searchPerformed = true;
           return;
         }
-
         // Costruisce la query di ricerca per i libri degli utenti nelle stesse community
         const libriRef = collection(db, 'libri');
         let libriQuery = query(libriRef, where('userId', 'in', userIds));
-
         // Esegue la query di ricerca per ottenere tutti i libri degli utenti nelle stesse community
         const libriSnapshot = await getDocs(libriQuery);
         const searchQueryLower = this.searchQuery.toLowerCase();
-
         const libriPromises = libriSnapshot.docs.map(async doc => {
           const libro = doc.data();
+
+          // Debug: Log dei dettagli del libro e dell'utente corrente
+          console.log('Libro:', libro);
+          console.log('User ID del libro:', libro.userId);
+          console.log('User ID corrente:', this.currentUser.userId);
+
           const proprietarioNickname = await this.getNickname(libro.userId);
           const comuniCommunities = await this.getCommonCommunities(libro.userId);
 
@@ -198,19 +191,20 @@ export default {
           } else if (categoria === 'genere' && libro.genere.toLowerCase().includes(searchQueryLower)) {
             matches = true;
           }
-
           // Filtra i libri che hanno almeno uno dei campi prestito, regalo, scambio o scambioLibro a true
-          if (matches && (libro.prestito || libro.regalo || libro.scambio || libro.scambioLibro === '')) {
-            return {
-              id: doc.id,
-              ...libro,
-              proprietario: proprietarioNickname,
-              community: comuniCommunities
-            };
+          if (matches && (libro.prestito || libro.regalo || libro.scambio || libro.scambioLibro[0] )) {
+            // Escludi i libri del proprietario loggato
+            if (libro.userId !== this.currentUser.userId) {
+              return {
+                id: doc.id,
+                ...libro,
+                proprietario: proprietarioNickname,
+                community: comuniCommunities
+              };
+            }
           }
           return null; // Non mostra i libri che non soddisfano il criterio
         });
-
         const libri = await Promise.all(libriPromises);
         this.risultati = libri.filter(libro => libro !== null);
         this.searchPerformed = true;
@@ -219,7 +213,6 @@ export default {
         this.searchPerformed = true;
       }
     }
-
   }
 };
 </script>
@@ -229,12 +222,10 @@ export default {
   margin: 20px;
   text-align: left;
 }
-
 .search-form {
   display: flex;
   align-items: center;
 }
-
 .search-form input {
   flex: 1;
   margin-right: 10px;
@@ -246,11 +237,9 @@ export default {
   list-style: none;
   padding: 0;
 }
-
 .results li {
   margin-bottom: 10px;
 }
-
 .no-results {
   margin-top: 20px;
   color: red;

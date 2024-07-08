@@ -16,6 +16,8 @@ import ModificaProfilo from './ModificaProfilo.vue';
 import GeneriPreferiti from './GeneriPreferiti.vue';
 import LibriPosseduti from './LibriPosseduti.vue';
 import LibriDesiderati from './LibriDesiderati.vue';
+import RichiesteRicevute from "@/components/RichiesteRicevute.vue";
+import PrestitiEffettuati from "@/components/PrestitiEffettuati.vue";
 
 export default {
   name: 'UserDashboard',
@@ -24,7 +26,9 @@ export default {
     ModificaProfilo,
     GeneriPreferiti,
     LibriPosseduti,
-    LibriDesiderati
+    LibriDesiderati,
+    RichiesteRicevute,
+    PrestitiEffettuati
   },
   data() {
     return {
@@ -32,7 +36,9 @@ export default {
         { id: 1, label: 'Modifica Profilo', name: 'modifica-profilo' },
         { id: 2, label: 'Biblioteca Personale', name: 'libri-posseduti' },
         { id: 3, label: 'Libri desiderati', name: 'libri-desiderati' },
-        { id: 4, label: 'Generi preferiti', name: 'generi-preferiti' }
+        { id: 4, label: 'Generi preferiti', name: 'generi-preferiti' },
+        { id: 5, label: 'Richieste ricevute', name: 'richieste-ricevute' },
+        { id: 6, label: 'Prestiti effettuati', name: 'prestiti-effettuati' }
       ],
       selectedMenuItem: 'modifica-profilo', // Menu di default selezionato
       currentComponent: 'ModificaProfilo'
@@ -55,6 +61,10 @@ export default {
           return 'LibriDesiderati';
         case 'generi-preferiti':
           return 'GeneriPreferiti';
+        case 'richieste-ricevute':
+          return 'RichiesteRicevute';
+        case 'prestiti-effettuati':
+          return 'PrestitiEffettuati';
         default:
           return 'ModificaProfilo';
       }
