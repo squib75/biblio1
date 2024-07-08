@@ -1,6 +1,9 @@
 <template>
   <div class="richieste-effettuate">
-    <h3>Richieste Effettuate</h3>
+    <div class="header">
+      <h3>Richieste Effettuate</h3>
+      <button class="elimina-storico" @click="cancellaTutteRichieste">Elimina storico richieste</button>
+    </div>
     <div v-if="richieste.length > 0">
       <ul>
         <li v-for="richiesta in richieste" :key="richiesta.id">
@@ -8,6 +11,10 @@
             <div class="libro-info">
               <strong>{{ richiesta.titolo }}</strong> di {{ richiesta.autore }}<br>
               Richiesto a <strong>{{ richiesta.nickname }}</strong> il {{ new Date(richiesta.timestamp.seconds * 1000).toLocaleString() }}
+            </div>
+            <div class="stato-richiesta">
+              <span v-if="richiesta.accettata" class="accettata">Richiesta accettata</span>
+              <span v-if="richiesta.rifiutata" class="rifiutata">Richiesta rifiutata</span>
             </div>
           </div>
         </li>
@@ -22,7 +29,7 @@
 <script>
 // Importa le funzioni necessarie da Firebase
 import { db, auth } from '@/firebase';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, setDoc } from 'firebase/firestore';
 
 export default {
   name: 'RichiesteEffettuate',
@@ -55,10 +62,16 @@ export default {
           const richiestaData = doc.data();
           richiestaData.id = doc.id;
           const nickname = await this.getNickname(richiestaData.userId);
-          richieste.push({
-            ...richiestaData,
-            nickname // Aggiungi il nickname recuperato
-          });
+
+          // Filtra le richieste che non devono essere visualizzate
+          if (!richiestaData.cancellatoDaRichiedente) {
+            richieste.push({
+              ...richiestaData,
+              nickname, // Aggiungi il nickname recuperato
+              accettata: richiestaData.accettata || false,
+              rifiutata: richiestaData.rifiutata || false
+            });
+          }
         }
 
         this.richieste = richieste;
@@ -80,6 +93,19 @@ export default {
         console.error('Errore durante il recupero del nickname:', error);
         return 'Errore';
       }
+    },
+    // Metodo per cancellare tutte le richieste
+    async cancellaTutteRichieste() {
+      try {
+        const richiesteIds = this.richieste.map(richiesta => richiesta.id);
+        const updatePromises = richiesteIds.map(id => setDoc(doc(db, 'richieste', id), { cancellatoDaRichiedente: true }, { merge: true }));
+        await Promise.all(updatePromises);
+        // Rimuovi immediatamente le richieste dal frontend
+        this.richieste = this.richieste.filter(richiesta => !richiesta.cancellatoDaRichiedente);
+        await this.fetchRichiesteEffettuate(); // Ricarica le richieste
+      } catch (error) {
+        console.error('Errore durante la cancellazione dello storico delle richieste:', error);
+      }
     }
   }
 };
@@ -89,6 +115,16 @@ export default {
 .richieste-effettuate {
   margin: 20px;
   text-align: left; /* Assicura che tutto sia allineato a sinistra */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.elimina-storico {
+  margin-left: 20px;
 }
 
 .richieste-effettuate ul {
@@ -106,11 +142,19 @@ export default {
   flex-grow: 1; /* Occupa lo spazio disponibile */
 }
 
-.richieste-ricevute li {
-  margin-bottom: 10px;
+.stato-richiesta {
+  margin-left: 20px; /* Spazio tra il libro e lo stato della richiesta */
 }
 
-.richieste-ricevute button {
-  margin-right: 10px;
+.accettata, .rifiutata {
+  color: #101010;
+}
+
+
+.richieste-effettuate li {
+  margin-bottom: 20px; /* Aumentato lo spazio tra i libri */
 }
 </style>
+
+
+

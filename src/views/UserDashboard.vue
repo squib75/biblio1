@@ -68,7 +68,7 @@ export default {
           return 'RichiesteRicevute';
         case 'richieste-effettuate':
           return 'RichiesteEffettuate';
-        case 'prestiti':
+        case 'prestiti-effettuati':
           return 'PrestitiLibri';
         default:
           return 'ModificaProfilo';

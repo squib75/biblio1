@@ -23,19 +23,36 @@
           <span v-if="libro.regalo"> regalo -</span>
           <span v-if="libro.scambioLibro && libro.scambioLibro.length > 0"> scambio con il libro: <i>{{libro.scambioLibro[1]}} di {{libro.scambioLibro[2]}}</i></span>
         </i>
-          <button @click="richiediLibro(libro)">Richiedi</button>
+          <button @click="openPopup(libro)">Richiedi</button>
         </li>
       </ul>
     </div>
     <div v-else-if="searchPerformed" class="no-results">
       <p>Nessun risultato trovato.</p>
     </div>
+    <div v-if="message" class="message">
+      <p>{{ message }}</p>
+    </div>
+
+    <!-- Popup per richiedere il libro con messaggio -->
+    <div v-if="showPopup" class="popup-overlay">
+      <div class="popup">
+        <h3>Vuoi proporre al proprietario una specifica modalità per lo scambio?</h3>
+        <textarea v-model="popupMessage" placeholder="Scrivi il tuo messaggio qui..."></textarea>
+        <div class="popup-actions">
+          <button @click="annullaRichiesta">Annulla</button>
+          <button @click="inviaRichiesta">Invia</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 
 <script>
 import { db, auth } from '@/firebase';
 import { collection, getDocs, query, where, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+
 export default {
   name: 'CercaLibroCommunity',
   data() {
@@ -45,7 +62,11 @@ export default {
       searchPerformed: false, // Flag per indicare se la ricerca è stata effettuata
       communities: [], // Array per memorizzare le community
       users: [], // Array per memorizzare gli utenti
-      currentUser: null // Dati dell'utente loggato
+      currentUser: null, // Dati dell'utente loggato
+      message: '', // Messaggio di conferma
+      showPopup: false, // Flag per mostrare/nascondere il popup
+      popupMessage: '', // Messaggio inserito nel popup
+      selectedLibro: null // Libro selezionato per la richiesta
     };
   },
   async created() {
@@ -181,6 +202,11 @@ export default {
           const proprietarioNickname = await this.getNickname(libro.userId);
           const comuniCommunities = await this.getCommonCommunities(libro.userId);
 
+          // Filtra i libri che appartengono all'utente loggato o che sono già stati richiesti dall'utente
+          if (libro.userId === this.currentUser.userId || libro.richiestoda === await this.getNickname(this.currentUser.userId)) {
+            return null;
+          }
+
           // Controlla se il libro soddisfa i criteri di ricerca case-insensitive
           let matches = false;
           if (categoria === 'titolo' && libro.titolo.toLowerCase().includes(searchQueryLower)) {
@@ -211,6 +237,36 @@ export default {
         this.searchPerformed = true;
       }
     },
+    openPopup(libro) {
+      this.selectedLibro = libro; // Memorizza il libro selezionato
+      this.popupMessage = ''; // Resetta il messaggio del popup
+      this.showPopup = true; // Mostra il popup
+    },
+    annullaRichiesta() {
+      this.showPopup = false; // Chiude il popup
+      this.richiediLibro(this.selectedLibro); // Procede con la richiesta come già implementato
+    },
+    async inviaRichiesta() {
+      try {
+        const richiedenteNickname = await this.getNickname(this.currentUser.userId);
+        // Crea un nuovo messaggio su Firebase
+        await setDoc(doc(collection(db, "messages")), {
+          from: richiedenteNickname,
+          message: this.popupMessage,
+          read: false,
+          timestamp: serverTimestamp(),
+          to: this.selectedLibro.proprietario
+        });
+
+        // Procedi con la richiesta del libro
+        await this.richiediLibro(this.selectedLibro);
+
+        // Chiudi il popup
+        this.showPopup = false;
+      } catch (error) {
+        console.error('Errore durante l\'invio del messaggio:', error);
+      }
+    },
     async richiediLibro(libro) {
       try {
         // Inserisci i dettagli della richiesta nella tabella Firebase
@@ -220,6 +276,13 @@ export default {
           richiedenteId: this.currentUser.userId,
           timestamp: serverTimestamp()
         });
+
+        // Aggiungi il campo "richiestoda" nel documento del libro
+        const libroDocRef = doc(db, "libri", libro.id);
+        const richiedenteNickname = await this.getNickname(this.currentUser.userId);
+        await setDoc(libroDocRef, {
+          richiestoda: richiedenteNickname
+        }, { merge: true });
 
         // Invia un messaggio al proprietario del libro
         const messageDocRef = doc(collection(db, "messages"));
@@ -231,15 +294,22 @@ export default {
           to: libro.proprietario
         });
 
-        console.log("Richiesta inviata con successo!");
+        // Rimuovi il libro dall'elenco visualizzato
+        this.risultati = this.risultati.filter(item => item.id !== libro.id);
+
+        // Mostra un messaggio di conferma
+        this.message = "Richiesta inviata con successo!";
+        setTimeout(() => {
+          this.message = ''; // Nasconde il messaggio di conferma dopo 5 secondi
+        }, 5000);
       } catch (error) {
         console.error("Errore durante l'invio della richiesta:", error);
       }
     }
-
   }
 };
 </script>
+
 
 <style scoped>
 .cerca-libri-community {
@@ -268,4 +338,51 @@ export default {
   margin-top: 20px;
   color: red;
 }
+.message {
+  margin-top: 20px;
+  color: green;
+}
+
+/* Stile per il popup */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+.popup h3 {
+  margin-top: 0;
+}
+
+.popup textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.popup-actions button {
+  margin-left: 10px;
+}
 </style>
+
+
+
