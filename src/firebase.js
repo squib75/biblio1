@@ -1,7 +1,12 @@
 // firebase.js
+console.log('Caricamento di firebase.js...');
+
+
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+
+console.log('Inizializzazione di Firebase...');
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -14,10 +19,23 @@ const firebaseConfig = {
 };
 
 // Inizializza Firebase
+
 const app = initializeApp(firebaseConfig);
+console.log('Firebase inizializzato');
 
 // Inizializza i servizi
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+console.log('Servizi Firebase inizializzati');
+
+// Configura la persistenza della sessione
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log('Persistenza configurata correttamente');
+    })
+    .catch((error) => {
+        console.error('Errore nella configurazione della persistenza:', error);
+    });
 
 export { auth, db };

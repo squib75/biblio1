@@ -6,6 +6,7 @@ import './assets/styles.css'; // Importa il foglio di stile globale
 // Importa FontAwesomeIcon dal file di configurazione
 import FontAwesomeIcon from './plugins/font-awesome';
 
+
 // Crea l'istanza dell'app Vue
 const app = createApp(App);
 

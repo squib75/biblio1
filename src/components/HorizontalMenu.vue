@@ -31,6 +31,12 @@ import UserLogout from '../components/UserLogout.vue';
 import MessageView from '../components/MessageView.vue';
 
 export default {
+  props: {
+    user: {
+      type: Object,
+      default: null
+    }
+  },
   components: {
     UserAuth,
     UserLogout,
@@ -52,6 +58,19 @@ export default {
       nickname: '',
       unreadCount: 0 // Numero di messaggi non letti
     };
+  },
+  watch: {
+    user(newUser) {
+      if (newUser) {
+        console.log('User prop changed: Logged in as', newUser.displayName);
+        this.isLoggedIn = true;
+        this.nickname = newUser.displayName;
+      } else {
+        console.log('User prop changed: Not logged in');
+        this.isLoggedIn = false;
+        this.nickname = '';
+      }
+    }
   },
   computed: {
     truncatedNickname() {
@@ -85,7 +104,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 .horizontal-menu {
@@ -164,4 +182,5 @@ export default {
 }
 
 </style>
+
 
