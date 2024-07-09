@@ -4,12 +4,12 @@
     <form @submit.prevent="login">
       <div>
         <label for="email">Email:</label>
-        <input type="email" v-model="email" id="email" required />
+        <input type="email" v-model="email" id="email" required autocomplete="email" />
       </div>
       <div class="password-container">
         <label for="password">Password:</label>
-        <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required />
-        <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" class="toggle-visibility" @click="togglePasswordVisibility"  />
+        <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required autocomplete="current-password" />
+        <font-awesome-icon :icon="showPassword ? 'eye-slash' : 'eye'" class="toggle-visibility" @click="togglePasswordVisibility" />
       </div>
       <button type="submit">Login</button>
     </form>
@@ -18,6 +18,7 @@
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
 </template>
+
 
 // UserLogin.vue
 <script>
