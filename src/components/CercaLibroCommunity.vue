@@ -14,8 +14,8 @@
       <ul>
         <li v-for="libro in risultati" :key="libro.id">
           <strong>{{ libro.titolo }}</strong> di {{ libro.autore }}
-          <div class="elDisp" v-if="libro.isbn">ISBN: {{ libro.isbn }}</div>
-          <div>Proprietario: <i><b>{{ libro.proprietario }}</b></i></div>
+          <div class="elDisp" v-if="libro.isbn">ISBN: {{ libro.isbn }}</div><br>
+          Proprietario: <strong>{{ libro.proprietario }}</strong> (Rating: {{ libro.rating }})<br>
           <div>Community: <i><b>{{ libro.community.join(', ') }}</b></i></div> <!-- Converte l'array in una stringa separata da virgole -->
           Disponibile per:<i>
           <span v-if="libro.prestito"> prestito - </span>
@@ -191,8 +191,8 @@ export default {
         // Esegue la query di ricerca per ottenere tutti i libri degli utenti nelle stesse community
         const libriSnapshot = await getDocs(libriQuery);
         const searchQueryLower = this.searchQuery.toLowerCase();
-        const libriPromises = libriSnapshot.docs.map(async doc => {
-          const libro = doc.data();
+        const libriPromises = libriSnapshot.docs.map(async libroDocSnapshot => {
+          const libro = libroDocSnapshot.data();
 
           // Debug: Log dei dettagli del libro e dell'utente corrente
           console.log('Libro:', libro);
@@ -202,8 +202,15 @@ export default {
           const proprietarioNickname = await this.getNickname(libro.userId);
           const comuniCommunities = await this.getCommonCommunities(libro.userId);
 
+          // Recupera il rating del proprietario
+          const proprietarioDoc = await getDoc(doc(db, 'users', libro.userId));
+          const rating = proprietarioDoc.exists() ? proprietarioDoc.data().rating : 'N/A';
+
+          // Log per diagnosticare il recupero del rating
+          console.log(`Rating per ${proprietarioNickname} (${libro.userId}):`, rating);
+
           // Filtra i libri che appartengono all'utente loggato o che sono già stati richiesti dall'utente
-          if (libro.userId === this.currentUser.userId || libro.richiestoda === await this.getNickname(this.currentUser.userId)) {
+          if (libro.userId === this.currentUser.userId || (libro.richiestoda && libro.richiestoda.includes(await this.getNickname(this.currentUser.userId)))) {
             return null;
           }
 
@@ -221,9 +228,10 @@ export default {
           // Filtra i libri che hanno almeno uno dei campi prestito, regalo, scambio o scambioLibro a true
           if (matches && (libro.prestito || libro.regalo || libro.scambio || libro.scambioLibro[0] )) {
             return {
-              id: doc.id,
+              id: libroDocSnapshot.id,
               ...libro,
               proprietario: proprietarioNickname,
+              rating, // Aggiungi il rating ai dati del libro
               community: comuniCommunities
             };
           }
@@ -272,6 +280,9 @@ export default {
         // Inserisci i dettagli della richiesta nella tabella Firebase
         const richiestaDocRef = doc(collection(db, "richieste"));
         await setDoc(richiestaDocRef, {
+          libroId: libro.id, // Assicurati di aggiungere il campo libroId
+          titolo: libro.titolo,
+          autore: libro.autore,
           ...libro,
           richiedenteId: this.currentUser.userId,
           timestamp: serverTimestamp()
@@ -280,8 +291,18 @@ export default {
         // Aggiungi il campo "richiestoda" nel documento del libro
         const libroDocRef = doc(db, "libri", libro.id);
         const richiedenteNickname = await this.getNickname(this.currentUser.userId);
+        const libroDoc = await getDoc(libroDocRef);
+        let richiestodaArray = [];
+        if (libroDoc.exists() && libroDoc.data().richiestoda) {
+          richiestodaArray = libroDoc.data().richiestoda;
+        }
+
+        if (!richiestodaArray.includes(richiedenteNickname)) {
+          richiestodaArray.push(richiedenteNickname);
+        }
+
         await setDoc(libroDocRef, {
-          richiestoda: richiedenteNickname
+          richiestoda: richiestodaArray
         }, { merge: true });
 
         // Invia un messaggio al proprietario del libro
@@ -300,8 +321,8 @@ export default {
         // Mostra un messaggio di conferma
         this.message = "Richiesta inviata con successo!";
         setTimeout(() => {
-          this.message = ''; // Nasconde il messaggio di conferma dopo 5 secondi
-        }, 5000);
+          this.message = ''; // Nasconde il messaggio di conferma dopo 3 secondi
+        }, 3000);
       } catch (error) {
         console.error("Errore durante l'invio della richiesta:", error);
       }

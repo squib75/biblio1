@@ -5,7 +5,7 @@
     <!-- Visualizza i campi del profilo utente con spazi tra etichetta e testo -->
     <div>
       <label>Nickname:   </label>
-      <span><strong>{{ nickname }}</strong></span>
+      <span><strong>{{ nickname }}</strong> <br> Rating: <strong>{{ rating }}</strong></span>
     </div>
 
     <div>
@@ -63,6 +63,7 @@ export default {
       nome: '', // Nome dell'utente
       cognome: '', // Cognome dell'utente
       telefono: '', // Numero di telefono dell'utente
+      rating: 'N/A', // Rating dell'utente
       selectedField: '', // Campo selezionato per la modifica
       fieldValue: '', // Nuovo valore del campo
       showPopup: false, // Mostra/nascondi popup
@@ -128,6 +129,7 @@ export default {
         this.nome = userData.nome || '';
         this.cognome = userData.cognome || '';
         this.telefono = userData.telefono || '';
+        this.rating = userData.rating || 'N/A'; // Aggiungi il recupero del rating
       }
     }
   }

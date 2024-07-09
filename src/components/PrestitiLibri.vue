@@ -168,6 +168,20 @@ export default {
             : { conclusoRichiedente: true };
         await updateDoc(prestitoDocRef, updateData);
 
+        // Se il prestito è concluso dal richiedente, rimuovi il richiedente dall'array richiestoda
+        if (user.uid === prestito.richiedenteId) {
+          const libroDocRef = doc(db, 'libri', prestito.libroId); // Assicurati di avere l'ID del libro nel prestito
+          const libroDoc = await getDoc(libroDocRef);
+          if (libroDoc.exists() && libroDoc.data().richiestoda) {
+            const richiestodaArray = libroDoc.data().richiestoda;
+            const richiedenteNickname = await this.getNickname(user.uid);
+            const updatedRichiestodaArray = richiestodaArray.filter(nickname => nickname !== richiedenteNickname);
+            await updateDoc(libroDocRef, {
+              richiestoda: updatedRichiestodaArray
+            }, { merge: true });
+          }
+        }
+
         // Mostra il popup di recensione
         this.selectedPrestito = prestito;
         this.showRecensionePopup = true;
@@ -212,6 +226,43 @@ export default {
             });
           }
         }
+        // Se il voto è del proprietario, aggiorna il punteggio del richiedente
+        if (user.uid === prestitoData.userId) {
+          const richiedenteDocRef = doc(db, 'users', prestitoData.richiedenteId);
+          const richiedenteDoc = await getDoc(richiedenteDocRef);
+          if (richiedenteDoc.exists()) {
+            const currentPunteggio = richiedenteDoc.data().punteggio || 0;
+            await updateDoc(richiedenteDocRef, {
+              punteggio: currentPunteggio + voto
+            });
+          }
+        }
+        let targetUserId;
+        if (user.uid === prestitoData.userId) {
+          targetUserId = prestitoData.richiedenteId;
+        } else if (user.uid === prestitoData.richiedenteId) {
+          targetUserId = prestitoData.userId;
+        }
+
+        if (targetUserId) {
+          const targetUserDocRef = doc(db, 'users', targetUserId);
+          const targetUserDoc = await getDoc(targetUserDocRef);
+          if (targetUserDoc.exists()) {
+            const userData = targetUserDoc.data();
+            const currentPunteggio = userData.punteggio || 0;
+            const currentRecensioni = userData.recensioni || 0;
+
+            const newPunteggio = currentPunteggio + voto;
+            const newRecensioni = currentRecensioni + 1;
+            const newRating = newPunteggio / newRecensioni;
+
+            await updateDoc(targetUserDocRef, {
+              punteggio: newPunteggio,
+              recensioni: newRecensioni,
+              rating: newRating
+            });
+          }
+        }
 
         // Chiudi il popup
         this.showRecensionePopup = false;
@@ -233,7 +284,7 @@ export default {
 <style scoped>
 .prestiti-libri {
   margin: 20px;
-  text-align: left; /* Assicura che tutto sia allineato a sinistra */
+  text-align: left;
 }
 
 .prestiti-libri ul {
@@ -244,18 +295,18 @@ export default {
 .prestito-info {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Centra gli elementi verticalmente */
-  margin-bottom: 20px; /* Spazio tra i prestiti */
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .libro-info {
-  flex-grow: 1; /* Occupa lo spazio disponibile */
+  flex-grow: 1;
 }
 
 .azioni {
   display: flex;
   align-items: center;
-  gap: 10px; /* Spazio tra i bottoni e le icone dei libri */
+  gap: 10px;
 }
 
 .icone-libri {
@@ -265,6 +316,7 @@ export default {
 
 .libro-votato {
   color: gold;
+  transition: transform 0.3s ease;
 }
 
 .review-popup {
@@ -277,7 +329,9 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
+
 </style>
+
 
 
 

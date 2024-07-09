@@ -6,9 +6,9 @@
         <span
             v-for="n in 5"
             :key="n"
-            :class="{'libro-votato': n <= voto, 'libro-non-votato': n > voto}"
             @click="setVoto(n)"
         >&#128218;</span>
+        <span v-if="voto > 0" class="punteggio">Voto: {{ voto }}</span>
       </div>
       <textarea v-model="recensione" placeholder="Scrivi la tua recensione qui..."></textarea>
       <div class="actions">
@@ -66,17 +66,21 @@ export default {
   text-align: center;
 }
 
+.voto {
+  display: flex;
+  align-items: center;
+}
+
 .voto span {
   cursor: pointer;
   font-size: 2rem;
 }
 
-.libro-votato {
-  color: gold;
-}
-
-.libro-non-votato {
-  color: gray;
+.punteggio {
+  margin-left: 20px;
+  margin-top: 5px;
+  font-size: 1.3rem;
+  color: #333;
 }
 
 textarea {
@@ -91,6 +95,7 @@ textarea {
   justify-content: space-between;
 }
 </style>
+
 
 
 

@@ -119,12 +119,19 @@ export default {
     async accettaRichiesta(richiesta) {
       // Aggiorna lo stato della richiesta su Firebase
       try {
-        // Imposta lo stato della richiesta a accettata
+        // Imposta lo stato della richiesta accettata
         await setDoc(doc(db, 'richieste', richiesta.id), { accettata: true }, { merge: true });
+
+        // Verifica che libroId sia presente
+        if (!richiesta.libroId) {
+          console.error('libroId non presente nella richiesta:', richiesta);
+          return;
+        }
 
         // Crea una nuova entrata nella collezione 'prestiti'
         await addDoc(collection(db, 'prestiti'), {
           ...richiesta,
+          libroId: richiesta.libroId, // Aggiungi il campo libroId
           dataAccettazione: serverTimestamp(),
           recensione: false
         });
