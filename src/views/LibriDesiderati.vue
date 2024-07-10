@@ -2,7 +2,7 @@
   <div class="libri-desiderati-container">
     <div class="libri-list">
       <div class="header">
-      <h3>Libri desiderati</h3>
+      <h3>Biblioteca dei desideri</h3>
       <button @click="showCercaLibroPopup = true">Aggiungi libro</button>
       </div>
 

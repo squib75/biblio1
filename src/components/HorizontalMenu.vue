@@ -111,7 +111,7 @@ export default {
   color: #221616;
   font-size: 1.3em;
   height: auto;
-  width: 96.7%;
+  width: 97.6%;
   padding: 0.7em;
   margin: 0;
   display: flex;

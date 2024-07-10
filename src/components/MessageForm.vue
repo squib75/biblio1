@@ -23,11 +23,11 @@ import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 
 export default {
-  props: ['nickname'],
+  props: ['nickname', 'initialTo', 'initialMessage'],
   data() {
     return {
-      to: '',
-      message: '',
+      to: this.initialTo || '',
+      message: this.initialMessage || '',
       errorMessage: '',
       successMessage: ''
     };
@@ -35,14 +35,10 @@ export default {
   methods: {
     async sendMessage() {
       try {
-        console.log("Dati di input:", this.to, this.message);
-
         if (!this.to || !this.message) {
           this.errorMessage = 'Tutti i campi sono obbligatori.';
           return;
         }
-
-        console.log("Tentativo di verifica del destinatario...");
 
         // Verifica se il destinatario esiste
         const q = query(collection(db, 'users'), where('nickname', '==', this.to));
@@ -53,31 +49,35 @@ export default {
           return;
         }
 
-        console.log("Destinatario verificato. Tentativo di aggiunta del documento...");
-
-        const docRef = await addDoc(collection(db, 'messages'), {
+        await addDoc(collection(db, 'messages'), {
           to: this.to,
           from: this.nickname,
           message: this.message,
           timestamp: new Date(),
-          read: false // Aggiungi il campo read impostato su false
+          read: false
         });
-
-        console.log("Document written with ID: ", docRef.id);
 
         this.to = '';
         this.message = '';
         this.successMessage = 'Messaggio inviato con successo.';
         this.errorMessage = '';
       } catch (error) {
-        console.error("Errore durante l'invio del messaggio: ", error);
         this.errorMessage = 'Errore durante l\'invio del messaggio.';
         this.successMessage = '';
       }
     }
+  },
+  watch: {
+    initialTo(newVal) {
+      this.to = newVal;
+    },
+    initialMessage(newVal) {
+      this.message = newVal;
+    }
   }
 };
 </script>
+
 
 <style scoped>
 /* Contenitore principale per il modulo di invio messaggi */

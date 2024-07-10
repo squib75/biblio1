@@ -1,13 +1,11 @@
 <template>
   <div class="WelcomeHome">
     <h1>{{ msg }}</h1>
-    <p> La lettura è il viaggio di chi non può prendere un treno. <i>(Francis De Croisett)</i></p>
+    <p> <i>La lettura è il viaggio di chi non può prendere un treno. (Francis De Croisett)</i></p>
   </div>
   <div class="grid-container">
     <div class="grid-item"><EventCalendar/></div>
     <div class="grid-item"><RecomendedBook/></div>
-    <div class="grid-item">Elemento3</div>
-    <div class="grid-item">Elemento 4</div>
   </div>
 </template>
 
@@ -27,13 +25,13 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+
 <style scoped>
 h1 {
   margin: 40px 0 0;
 }
 p{
-  font-size: 4vh
+  font-size: 3vh
 }
 .grid-container {
   display: grid;
@@ -43,7 +41,7 @@ p{
 
 .grid-item {
   width: 45vw; /* 45% della larghezza della finestra */
-  height: 35vw; /* 35% dell'altezza della finestra */
+  height: 90vw; /* 35% dell'altezza della finestra */
   padding: 10px;
   border: 1px solid #ccc;
   text-align: center;

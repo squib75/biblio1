@@ -4,8 +4,8 @@
       <span class="close" @click="$emit('close')">&times;</span>
     </div>
     <div class="message-container">
-      <MessageList :nickname="nickname" @update-unread-count="updateUnreadCount" class="message-component"/>
-      <MessageForm :nickname="nickname" class="message-component"/>
+      <MessageList :nickname="nickname" @update-unread-count="updateUnreadCount" @reply-message="handleReplyMessage" class="message-component"/>
+      <MessageForm :nickname="nickname" :initialTo="replyTo" :initialMessage="replyContent" class="message-component"/>
     </div>
   </div>
 </template>
@@ -20,13 +20,24 @@ export default {
     MessageForm
   },
   props: ['nickname'],
+  data() {
+    return {
+      replyTo: '',
+      replyContent: ''
+    };
+  },
   methods: {
     updateUnreadCount(count) {
       this.$emit('update-unread-count', count);
+    },
+    handleReplyMessage({ to, content }) {
+      this.replyTo = to;
+      this.replyContent = content;
     }
   }
 };
 </script>
+
 
 <style scoped>
 /* Stile principale per il popup della vista messaggi */

@@ -13,7 +13,6 @@
     align-items: center; /* Centra orizzontalmente il contenuto */
     width: 100%; /* Occupa tutta la larghezza della pagina */
     margin-top: 0; /* Margine superiore */
-    padding-bottom: 60px; /* Spazio inferiore per evitare che il contenuto venga sovrapposto al footer */
     box-sizing: border-box; /* Include padding e bordo nella larghezza totale e altezza */
     overflow-x: auto; /* Barra di scorrimento orizzontale */
     flex: 1;
@@ -70,7 +69,7 @@ a:visited {
     cursor: pointer;
     text-align: center;
     margin-top: 15px;
-    font-size: 1.8vw;
+    font-size: 1.3rem;
 }
 .switch-view:hover{
     transform: translate(2px, -1px); /* Effetto di traslazione lieve */

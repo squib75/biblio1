@@ -215,36 +215,18 @@ export default {
 
         await updateDoc(prestitoDocRef, updateData);
 
-        // Se il voto è del richiedente, aggiorna il punteggio del proprietario
-        if (user.uid === prestitoData.richiedenteId) {
-          const proprietarioDocRef = doc(db, 'users', prestitoData.userId);
-          const proprietarioDoc = await getDoc(proprietarioDocRef);
-          if (proprietarioDoc.exists()) {
-            const currentPunteggio = proprietarioDoc.data().punteggio || 0;
-            await updateDoc(proprietarioDocRef, {
-              punteggio: currentPunteggio + voto
-            });
-          }
-        }
-        // Se il voto è del proprietario, aggiorna il punteggio del richiedente
-        if (user.uid === prestitoData.userId) {
-          const richiedenteDocRef = doc(db, 'users', prestitoData.richiedenteId);
-          const richiedenteDoc = await getDoc(richiedenteDocRef);
-          if (richiedenteDoc.exists()) {
-            const currentPunteggio = richiedenteDoc.data().punteggio || 0;
-            await updateDoc(richiedenteDocRef, {
-              punteggio: currentPunteggio + voto
-            });
-          }
-        }
+        // Determina quale utente ha fornito la recensione e quale utente riceve il voto
         let targetUserId;
         if (user.uid === prestitoData.userId) {
+          // L'utente corrente è il proprietario, il richiedente riceve il voto
           targetUserId = prestitoData.richiedenteId;
         } else if (user.uid === prestitoData.richiedenteId) {
+          // L'utente corrente è il richiedente, il proprietario riceve il voto
           targetUserId = prestitoData.userId;
         }
 
         if (targetUserId) {
+          // Aggiorna il punteggio, il numero di recensioni e il rating dell'utente target
           const targetUserDocRef = doc(db, 'users', targetUserId);
           const targetUserDoc = await getDoc(targetUserDocRef);
           if (targetUserDoc.exists()) {
@@ -254,7 +236,7 @@ export default {
 
             const newPunteggio = currentPunteggio + voto;
             const newRecensioni = currentRecensioni + 1;
-            const newRating = newPunteggio / newRecensioni;
+            const newRating = (newPunteggio / newRecensioni).toFixed(2);
 
             await updateDoc(targetUserDocRef, {
               punteggio: newPunteggio,

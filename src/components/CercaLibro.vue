@@ -64,14 +64,14 @@ export default {
         return;
       }
       try {
-        const response = await axios.get(`https://openlibrary.org/api/books?bibkeys=ISBN:${this.isbn}&format=json&jscmd=data`);
-        const bookData = response.data[`ISBN:${this.isbn}`];
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=isbn:${this.isbn}`);
+        const bookData = response.data.items ? response.data.items[0].volumeInfo : null;
         if (bookData) {
           this.titolo = bookData.title || '';
-          this.autore = bookData.authors ? bookData.authors.map(author => author.name).join(', ') : '';
-          this.annoPubblicazione = bookData.publish_date || '';
-          this.genere = bookData.subjects ? bookData.subjects.map(subject => subject.name).join(', ') : '';
-          this.descrizione = bookData.notes || '';
+          this.autore = bookData.authors ? bookData.authors.join(', ') : '';
+          this.annoPubblicazione = bookData.publishedDate || '';
+          this.genere = bookData.categories ? bookData.categories.join(', ') : '';
+          this.descrizione = bookData.description || '';
           this.message = 'Dati del libro caricati con successo';
           this.messageType = 'success';
         } else {
@@ -84,6 +84,7 @@ export default {
         this.messageType = 'error';
       }
     },
+
     aggiungiLibro() {
       if (!this.titolo || !this.autore) {
         this.message = 'Titolo e Autore sono obbligatori';

@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import {db, auth} from '@/firebase'; // Importa l'autenticazione e il database di Firebase
-import {collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc, getDoc} from 'firebase/firestore';
+import { db, auth } from '@/firebase'; // Importa l'autenticazione e il database di Firebase
+import { collection, getDocs, query, where, deleteDoc, doc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
 import CercaLibro from '@/components/CercaLibro.vue'; // Importa il componente CercaLibro
 
 export default {
@@ -105,7 +105,7 @@ export default {
       // Carica i libri dell'utente corrente dal database
       try {
         const libriSnapshot = await getDocs(query(collection(db, 'libri'), where('userId', '==', this.user.uid)));
-        this.libri = libriSnapshot.docs.map(doc => ({id: doc.id, ...doc.data(), showDisponibilitaMenu: false}));
+        this.libri = libriSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), showDisponibilitaMenu: false }));
       } catch (error) {
         console.error('Errore durante il caricamento dei libri:', error);
       }
@@ -124,8 +124,13 @@ export default {
       }
     },
     async updateDisponibilita(libroId) {
-      // Aggiorna la disponibilità di un libro
       try {
+        console.log('SelectedLibro prima di aggiornare la disponibilità:', this.selectedLibro);
+        if (!this.selectedLibro) {
+          console.log('SelectedLibro è null prima di aggiornare la disponibilità');
+          return;
+        }
+
         const libroRef = doc(db, 'libri', libroId);
         const updateData = {
           prestito: this.selectedLibro.prestito,
@@ -138,6 +143,15 @@ export default {
         await updateDoc(libroRef, updateData);
         this.message = 'Disponibilità aggiornata con successo';
         this.messageType = 'success';
+
+        // Verifica se il libro aggiornato è presente tra i desiderati di altri utenti
+        if (this.selectedLibro) {
+          console.log('SelectedLibro prima del controllo dei libri desiderati:', this.selectedLibro);
+          await this.checkLibriDesiderati(this.selectedLibro);
+        } else {
+          console.log('SelectedLibro è null dopo aver aggiornato la disponibilità:', this.selectedLibro);
+        }
+
         this.closeDisponibilitaPopup();
       } catch (error) {
         console.error('Errore durante l\'aggiornamento della disponibilità:', error);
@@ -148,6 +162,7 @@ export default {
     async toggleDisponibilitaMenu(libro) {
       // Mostra il popup di disponibilità e carica i dettagli del libro selezionato
       try {
+        console.log('Toggle disponibilità per libro:', libro);
         const libroRef = doc(db, 'libri', libro.id);
         const libroSnapshot = await getDoc(libroRef);
         if (libroSnapshot.exists()) {
@@ -157,7 +172,10 @@ export default {
             id: libro.id,
             scambioLibro: libroData.scambioLibro || [false, '', '', '', '', '', '']
           };
+          console.log('Libro selezionato:', this.selectedLibro);
           this.showDisponibilitaPopup = true;
+        } else {
+          console.log('Nessun documento trovato per il libro con id:', libro.id);
         }
       } catch (error) {
         console.error('Errore durante il caricamento dei dettagli del libro:', error);
@@ -204,7 +222,7 @@ export default {
           nuovoLibro.userId = user.uid; // Aggiungi l'ID dell'utente al libro
           const libroRef = await addDoc(collection(db, 'libri'), nuovoLibro);
           // Aggiungi il libro alla lista locale con l'ID ottenuto da Firebase
-          this.libri.push({id: libroRef.id, ...nuovoLibro});
+          this.libri.push({ id: libroRef.id, ...nuovoLibro });
           this.message = 'Libro aggiunto con successo';
           this.messageType = 'success';
           this.showCercaLibroPopup1 = false;
@@ -218,11 +236,49 @@ export default {
     closeCercaLibroPopup() {
       // Chiude il popup CercaLibro
       this.showCercaLibroPopup1 = false;
+      this.showCercaLibroPopup2 = false;
+    },
+    async checkLibriDesiderati(libro) {
+      try {
+        console.log('Controllo libri desiderati per il libro:', libro);
+        if (!libro || !libro.titolo || !libro.autore) {
+          console.log('Il libro è null o non ha titolo o autore:', libro);
+          return;
+        }
+
+        // Recupera tutti i libri desiderati
+        const desideratiSnapshot = await getDocs(collection(db, 'libriDesiderati'));
+        for (const desideratoDoc of desideratiSnapshot.docs) {
+          const desiderato = desideratoDoc.data();
+          console.log('Verifica libro desiderato:', desiderato);
+          // Controlla se il libro aggiornato corrisponde a uno dei libri desiderati (per titolo o autore)
+          if ((libro.titolo.toLowerCase() === desiderato.titolo.toLowerCase()) || (libro.autore.toLowerCase() === desiderato.autore.toLowerCase())) {
+            console.log('Trovata corrispondenza:', libro, desiderato);
+            // Recupera il nickname dell'utente che ha desiderato il libro
+            const userDoc = await getDoc(doc(db, 'users', desiderato.userId));
+            if (userDoc.exists()) {
+              const userNickname = userDoc.data().nickname || 'Sconosciuto';
+              // Crea un messaggio di notifica su Firebase
+              await addDoc(collection(db, 'messages'), {
+                to: userNickname, // Nickname dell'utente che ha desiderato il libro
+                from: 'admin',
+                message: `Il libro "${libro.titolo}" presente nella tua Biblioteca dei desideri è ora disponibile! Effettua una ricerca e scopri se il proprietario ${this.user.displayName} appartiene alla tua community!`,
+                timestamp: new Date(),
+                read: false
+              });
+              console.log('Notifica inviata a:', userNickname);
+            } else {
+              console.log('Documento utente non trovato per userId:', desiderato.userId);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Errore durante il controllo dei libri desiderati:', error);
+      }
     }
   }
 };
 </script>
-
 
 <style scoped>
 .libri-posseduti-container {

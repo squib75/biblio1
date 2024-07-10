@@ -2,20 +2,23 @@
   {
     "title": "Incontro di lettura",
     "date": "10 Luglio 2024",
-    "location": "Libreria Lo Scoiattolo - Milano",
-    "imageUrl": "https://www.illibraio.it/wp-content/uploads/2021/06/1-6.jpg"
+    "location": "Libreria Verso - Milano",
+    "imageUrl": "https://www.illibraio.it/wp-content/uploads/2021/06/1-6.jpg",
+    "url": "https://www.libreriaverso.com/"
   },
   {
     "title": "Leggiamo insieme la Divina Commedia - Dante Alighieri",
     "date": "15 Luglio 2024",
-    "location": "Galleria Vittorio Emanuele - Milano",
-    "imageUrl": "https://gruppodilettura.files.wordpress.com/2016/04/roz-chast-sofa.jpg"
+    "location": "Gruppo di lettura Niguarda - Galleria Vittorio Emanuele - Milano",
+    "imageUrl": "https://gruppodilettura.files.wordpress.com/2016/04/roz-chast-sofa.jpg",
+    "url": "https://milano.biblioteche.it/library/niguarda/gruppo-di-lettura/"
   },
   {
     "title": "Gruppo di lettura, incontro del 1°ottobre",
     "date": "15 Luglio 2024",
-    "location": "Biblioteca 'Luigi Pirandello'- Cinisello Balsamo (MI)",
-    "imageUrl": "https://www.comune.usmatevelate.mb.it/c108044/po/immagine_news.php?news=1137&id=1741&size=original"
+    "location": "Biblioteca 'Il Pertini'- Cinisello Balsamo (MI)",
+    "imageUrl": "https://www.comune.usmatevelate.mb.it/c108044/po/immagine_news.php?news=1137&id=1741&size=original",
+    "url": "https://webopac.csbno.net/library/Cinisello-Il-Pertini/"
   },
   {
     "title": "Primo incontro del Gruppo di Lettura",

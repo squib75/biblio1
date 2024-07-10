@@ -9,8 +9,6 @@
       <div v-for="(event, index) in events" :key="index" class="event-item">
         <!-- Dettagli dell'evento -->
         <div class="event-details">
-          <!-- Immagine dell'evento -->
-          <img :src="event.imageUrl" :alt="event.title" class="event-image">
           <div class="event-container">
             <div> <!-- Titolo dell'evento -->
               <h3>{{ event.title }}</h3>
@@ -20,9 +18,11 @@
               <!-- Data dell'evento -->
               <p>{{ event.date }}</p>
               <!-- Luogo dell'evento -->
-              <p>{{ event.location }}</p>
+              <p><a :href="event.url" target="_blank">{{ event.location }}</a></p>
             </div>
           </div>
+          <!-- Immagine dell'evento -->
+          <img :src="event.imageUrl" :alt="event.title" class="event-image">
         </div>
       </div>
     </div>
@@ -66,7 +66,9 @@ export default {
     padding: 10px;
     border-radius: 8px;
     max-width: 95%;
-    margin-left: 5px;
+    height: 98%;
+    margin-left: 10px;
+    margin-top: 10px;
 
   }
 .event-menu h2 {
@@ -76,31 +78,39 @@ export default {
   display: flex;
   flex-wrap: wrap; /* Rende flessibile il layout */
   gap: 10px; /* Spazio tra gli eventi */
+  height: 95%;
+  flex-direction: column;
 }
 .event-item {
   flex: 1 1 300px;
   background-color: #d6e4f3;
   border: 1px solid #ccc;
   border-radius: 8px;
-  overflow: hidden;
-  max-width: 45vw; /* Larghezza massima */
-  max-height: 35vw; /* Altezza massima */
-  font-size: 1.3vw; /* Dimensione del font sarà il 1.6% della larghezza della finestra */
+  overflow-y: auto;
+  max-width: 95%; /* Larghezza massima */
+  max-height: 95%; /* Altezza massima */
+  font-size: 1.3rem; /* Dimensione del font sarà il 1.3 root em */
+  padding: 10px;
+  margin-bottom: 20px;
+  margin-left: 10px;
 }
 .event-details {
+  display: flex;
+  flex-direction: column;
   padding: 2px;
   overflow-y: auto;
-  display: flex;
+  width: 100%;
+  margin-left: 10px;
 }
 .event-image {
-  max-width:30%;
+  margin: 15px;
+  width: 90%;
   height: auto;
   border-bottom: 1px solid #ccc;
   display: flex;
 }
 .event-details h3 {
   font-size: 1.1em;
-  margin: 7px;
   overflow: hidden; /* nasconde il testo che sfora la larghezza del container */
 }
 .event-container {

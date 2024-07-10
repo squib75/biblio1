@@ -37,7 +37,7 @@ export default {
       menuItems: [
         { id: 1, label: 'Modifica Profilo', name: 'modifica-profilo' },
         { id: 2, label: 'Biblioteca Personale', name: 'libri-posseduti' },
-        { id: 3, label: 'Libri desiderati', name: 'libri-desiderati' },
+        { id: 3, label: 'Biblioteca dei desideri', name: 'libri-desiderati' },
         { id: 4, label: 'Generi preferiti', name: 'generi-preferiti' },
         { id: 5, label: 'Richieste ricevute', name: 'richieste-ricevute' },
         { id: 6, label: 'Richieste effettuate', name: 'richieste-effettuate' },

@@ -6,7 +6,7 @@
       <ul class="footer-list">
         <!-- Email e Telefono -->
         <li class="footer-item">
-          <p><a href="mailto:info@esempio.com" >Email: info@biblioteca_condivisa.com</a></p>
+          <p><a href="mailto:info@bibliotecacondivisa.com" >Email: info@bibliotecacondivisa.com</a></p>
           <p><a href="tel:+391234567890" >Telefono: +39 1234567890</a></p>
         </li>
         <!-- Logo centrale -->
@@ -39,16 +39,12 @@ export default {
   color: #221616;
   padding: 0.5rem 0; /* Riduce il padding verticale */
   margin: 0;
-  width: 99%; /* Assicura che il footer occupi l'intera larghezza della pagina */
-  display: flex;
+  width: 100%; /* Assicura che il footer occupi l'intera larghezza della pagina */
+  display: block;
   align-items: center;
   justify-content: center; /* Centra il contenuto orizzontalmente */
-  position: relative;
-  bottom: 0;
   overflow: hidden;
-   /* Rende il footer fisso */
-
-
+  font-size: 1.1rem;
 }
 
 /* Contenitore centrale del footer */
@@ -75,6 +71,7 @@ export default {
 .footer-item {
   flex: 1;
   text-align: center; /* Centra il testo orizzontalmente */
+  margin-left: 250px;
 }
 
 /* Elemento centrale per il logo */

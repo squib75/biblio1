@@ -71,9 +71,11 @@ export default {
   background-color: #f0b68c;
   padding: 10px;
   border-radius: 8px;
-  margin-left: 0;
+  margin-left: 10px;
   /* Imposta la larghezza massima dell'elemento in percentuale rispetto alla larghezza della finestra */
   max-width: 95%;
+  height: 98%;
+  margin-top: 10px;
 }
 
 .book-info h2 {
@@ -99,6 +101,8 @@ export default {
 .book-details {
   text-align: justify; /* Giustifica il testo */
   margin-right: 5px; /* Aggiunge un margine a destra */
+  font-size: 1.2rem;
+  line-height: 1.5;
 }
 
 /* Stile del titolo del libro */

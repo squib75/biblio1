@@ -16,6 +16,7 @@
           <br><br>
           <p v-if="expandedId === message.id"><i>{{ message.message }}</i></p>
         </label>
+        <button v-if="expandedId === message.id" @click.stop="replyMessage(message)">Rispondi</button>
       </li>
     </ul>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
@@ -45,8 +46,6 @@ export default {
           this.errorMessage = 'Nickname non definito.';
           return;
         }
-
-        console.log("Nickname:", this.nickname);
 
         const q = query(collection(db, 'messages'), where('to', '==', this.nickname));
         const querySnapshot = await getDocs(q);
@@ -91,6 +90,10 @@ export default {
         this.errorMessage = 'Errore durante l\'eliminazione del messaggio.';
       }
     },
+    replyMessage(message) {
+      const replyContent = `\n\nRe: ${message.message}\n${new Date(message.timestamp.seconds * 1000).toLocaleString()}`;
+      this.$emit('reply-message', { to: message.from, content: replyContent });
+    },
     updateUnreadCount() {
       const unreadCount = this.messages.filter(msg => !msg.read).length;
       this.$emit('update-unread-count', unreadCount);
@@ -112,7 +115,6 @@ export default {
 
 /* Stile per il contenitore principale dei messaggi */
 .message-list-popup {
-  padding: 0;
   max-height: 500px; /* Definisce un'altezza massima per il contenitore */
   overflow-y: auto; /* Aggiunge una barra di scorrimento verticale */
 }
@@ -132,15 +134,14 @@ export default {
 
 /* Stile per ogni elemento della lista dei messaggi */
 .message-item {
-  font-size: 1.3vw;
+  font-size: 1.3rem;
   align-items: flex-start; /* Allineamento degli elementi all'inizio */
   margin-bottom: 5px; /* Spaziatura inferiore tra gli elementi */
   text-align: left; /* Allineamento del testo a sinistra */
   white-space: pre-wrap; /* Per andare a capo nel testo */
   overflow-wrap: break-word; /* Per gestire l'overflow del testo */
-  padding-top: 10px; /* Padding interno */
-  padding-left: 5px;
-  background-color: #a8bca8; /* Colore di sfondo iniziale */
+  padding: 10px; /* Padding interno */
+  background-color: #bf731e; /* Colore di sfondo iniziale */
   cursor: pointer; /* Cambia il cursore al passaggio */
   transition: all 0.3s ease; /* Transizione per cambiamenti di stato */
 }
@@ -149,6 +150,7 @@ export default {
 .message-item:hover {
   transform: translateY(-3px);
 }
+
 /* Stile per l'elemento espanso */
 .message-item.expanded {
   background-color: #cadaca; /* Colore di sfondo quando espanso */
@@ -157,7 +159,7 @@ export default {
 
 /* Stile per l'elemento letto */
 .message-item.read {
-  background-color: #6e756c; /* Mantiene il colore rosso dopo aver letto */
+  background-color: #679c57; /* Mantiene il colore rosso dopo aver letto */
 }
 
 /* Stile per i paragrafi all'interno degli elementi della lista */
@@ -171,5 +173,20 @@ export default {
 /* Mostra il testo del messaggio se espanso */
 .message-item.expanded p {
   display: block;
+}
+
+/* Stile per il pulsante Rispondi */
+button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background-color: #34805a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
 }
 </style>

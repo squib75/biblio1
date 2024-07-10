@@ -7,9 +7,9 @@
     <h4>Le Community vivono dei propri iscritti: condividi i tuoi libri e partecipa agli eventi del tuo gruppo!</h4>
 
     <div class="community-grid">
-      <!-- Ciclo attraverso le community e visualizzo nome, indirizzo e numero di iscritti -->
+      <!-- Ciclo delle community e visualizzo nome, indirizzo e numero di iscritti -->
       <div v-for="community in communities" :key="community.id" class="community-card">
-        <h2>{{ community.Nome }}</h2>
+        <h4>{{ community.Nome }}</h4>
         <div class="location">
           <a v-if="community.Indirizzo" :href="'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(community.Indirizzo)" target="_blank">
             <font-awesome-icon :icon="['fas', 'map-marker-alt']" class="location-icon" />
@@ -205,23 +205,30 @@ export default {
 /* Stile per il contenitore principale del Community Book */
 .community-book {
   padding: 5px;
+  font-size: 1.5rem;
 }
 
 /* Stile per la griglia delle community */
 .community-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 10px;
+
 }
 
 /* Stile per le card delle community */
 .community-card {
   background-color: #d6e4f3;
   border: 3px solid #635b5b;
-  padding: 5px;
+  padding: 10px;
   border-radius: 2px;
   font-size: 1.2vw;
-  text-align: left;
+  text-align: center; /* Centra il testo */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Spaziatura variabile */
+  align-items: center;
+  height: 300px; /* Altezza fissa per le card */
 }
 
 /* Stile per la location */
@@ -230,54 +237,47 @@ export default {
   align-items: center;
   margin-top: 5px;
   line-height: 1.5; /* Interlinea */
+  font-size: 1.3rem;
 }
 
 .location-icon {
   margin-right: 10px;
   cursor: pointer;
 }
-.buttons {
-  padding: 9px;
+/* Stile per i pulsanti */
+button {
+  padding: 10px;
   border: none;
   border-radius: 2px;
   cursor: pointer;
-  font-size: 1.4em;
-  margin: 0;
+  font-size: 1em;
+  margin: 5px;
   transition: background-color 0.3s, transform 0.3s; /* Transizione per colore e trasformazione */
-  position: relative;
-  bottom: 0;
-  text-align: center;
-  display: inline-block;
-
 }
 /* Stile per i pulsanti */
 button.Iscrizione {
   background-color: #28a745;
   color: white;
-  justify-content: center;
-  margin: 5px;
-  font-size: 0.8em;
 }
 button.Disiscrizione {
   background-color: #bf1d1d;
   color: white;
-  justify-content: center;
-  margin: 5px;
-  font-size: 0.8em;
 }
 button.Descrizione {
   background-color: rgb(186, 90, 39);
   color: white;
-  justify-content: center;
-  display: flex;
-  font-size: 0.8em;
 }
 /* Stile per i pulsanti al passaggio del mouse */
 button:hover {
   background-color: #0056b3;
   transform: scale(1.05); /* Effetto di ingrandimento */
 }
-
+/* Stile per i pulsanti all'interno delle card */
+.buttons {
+  margin-top: auto; /* Spinge i pulsanti in basso */
+  width: 100%;
+  text-align: center;
+}
 /* Centra i pulsanti all'interno delle card */
 .community-card {
   display: flex;
@@ -322,14 +322,6 @@ a {
   text-decoration: none; /* Nessuna sottolineatura */
   font-weight: normal; /* No grassetto */
   display: inline-block; /* Consente applicazione effetti di transizione */
-}
-
-a:hover {
-  transform: translate(2px, -1px); /* Effetto di traslazione lieve */
-}
-
-a:visited {
-  color: #000; /* Colore del font una volta cliccato */
 }
 
 .small-text {
