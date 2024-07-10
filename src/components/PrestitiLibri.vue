@@ -7,7 +7,7 @@
           <div class="prestito-info">
             <div class="libro-info">
               <strong>{{ prestito.titolo }}</strong> di {{ prestito.autore }}<br>
-              Prestato da <strong>{{ prestito.proprietario }}</strong> a <strong>{{ prestito.richiedenteNickname }}</strong><br>
+              Prestato da <strong>{{ prestito.proprietarioNickname }}</strong> a <strong>{{ prestito.richiedenteNickname }}</strong><br>
               Data Richiesta: {{ new Date(prestito.timestamp.seconds * 1000).toLocaleString() }}<br>
               Data Accettazione: {{ new Date(prestito.dataAccettazione.seconds * 1000).toLocaleString() }}
             </div>
@@ -21,7 +21,6 @@
                 {{ prestito.mostraRecensione ? 'Chiudi Recensione' : 'Leggi Recensione' }}
               </button>
               <div class="icone-libri" v-if="prestito.recensioneAltraParte">
-
                 <span v-for="n in prestito.votoAltraParte" :key="n" class="libro-votato">&#128218;</span>
               </div>
             </div>
@@ -36,16 +35,14 @@
     <div v-if="showReview" class="review-popup">
       <h3>Recensione</h3>
       <p>{{ reviewContent }}</p>
-
     </div>
   </div>
 </template>
 
-
 <script>
 // Importa le funzioni necessarie da Firebase
 import { db, auth } from '@/firebase';
-import { collection, getDocs, getDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import RecensionePrestito from './RecensionePrestito.vue';
 
 export default {
@@ -65,6 +62,7 @@ export default {
   // Metodo chiamato quando il componente viene creato
   async created() {
     await this.fetchPrestiti(); // Recupera i prestiti
+    this.setupRealtimeUpdates(); // Imposta aggiornamenti in tempo reale
   },
   methods: {
     // Metodo per recuperare i prestiti dal database
@@ -82,10 +80,10 @@ export default {
         const prestiti = [];
 
         // Usa un ciclo for...of per gestire le promesse in modo corretto
-        for (const doc of querySnapshot.docs) {
+        for (const docSnapshot of querySnapshot.docs) {
           // Estrae i dati di ogni prestito e li memorizza nell'array prestiti
-          const prestitoData = doc.data();
-          prestitoData.id = doc.id;
+          const prestitoData = docSnapshot.data();
+          prestitoData.id = docSnapshot.id;
 
           // Filtra i prestiti dove l'utente loggato è il proprietario o il richiedente
           if (prestitoData.userId === user.uid || prestitoData.richiedenteId === user.uid) {
@@ -109,6 +107,38 @@ export default {
       } catch (error) {
         console.error('Errore durante il recupero dei prestiti:', error);
       }
+    },
+
+    // Imposta aggiornamenti in tempo reale
+    setupRealtimeUpdates() {
+      const user = auth.currentUser;
+      if (!user) {
+        console.error('Utente non autenticato.');
+        return;
+      }
+
+      onSnapshot(collection(db, 'prestiti'), async (snapshot) => {
+        const prestiti = [];
+        for (const docSnapshot of snapshot.docs) {
+          const prestitoData = docSnapshot.data();
+          prestitoData.id = docSnapshot.id;
+          if (prestitoData.userId === user.uid || prestitoData.richiedenteId === user.uid) {
+            const proprietarioNickname = await this.getNickname(prestitoData.userId);
+            const richiedenteNickname = await this.getNickname(prestitoData.richiedenteId);
+            prestiti.push({
+              ...prestitoData,
+              proprietarioNickname,
+              richiedenteNickname,
+              conclusoProprietario: prestitoData.conclusoProprietario || false,
+              conclusoRichiedente: prestitoData.conclusoRichiedente || false,
+              mostraRecensione: false,
+              recensioneAltraParte: prestitoData.userId === user.uid ? prestitoData.recensioneRichiedente : prestitoData.recensioneProprietario,
+              votoAltraParte: prestitoData.userId === user.uid ? prestitoData.votoRichiedente : prestitoData.votoProprietario
+            });
+          }
+        }
+        this.prestiti = prestiti;
+      });
     },
 
     // Metodo per leggere o chiudere la recensione
@@ -260,7 +290,6 @@ export default {
     },
   }
 };
-
 </script>
 
 <style scoped>
@@ -311,13 +340,4 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
-
 </style>
-
-
-
-
-
-
-
-

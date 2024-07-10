@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { onSnapshot, collection, query, where } from 'firebase/firestore';
+import { db } from '@/firebase';
 import UserAuth from '../components/UserAuth.vue';
 import UserLogout from '../components/UserLogout.vue';
 import MessageView from '../components/MessageView.vue';
@@ -56,7 +58,8 @@ export default {
       showMessages: false, // Variabile per controllare la visualizzazione di MessageView
       isLoggedIn: false,
       nickname: '',
-      unreadCount: 0 // Numero di messaggi non letti
+      unreadCount: 0, // Numero di messaggi non letti
+      unsubscribe: null // Riferimento al listener di Firestore
     };
   },
   watch: {
@@ -65,10 +68,12 @@ export default {
         console.log('User prop changed: Logged in as', newUser.displayName);
         this.isLoggedIn = true;
         this.nickname = newUser.displayName;
+        this.startMessageListener();
       } else {
         console.log('User prop changed: Not logged in');
         this.isLoggedIn = false;
         this.nickname = '';
+        this.stopMessageListener();
       }
     }
   },
@@ -91,15 +96,36 @@ export default {
       this.isLoggedIn = true;
       this.unreadCount = unreadCount; // Aggiorna il numero di messaggi non letti
       this.showLoginPopup = false;
+      this.startMessageListener();
     },
     handleLogout() {
       this.nickname = '';
       this.isLoggedIn = false;
       this.showLogoutPopup = false;
       this.unreadCount = 0; // Resetta il conteggio dei messaggi non letti
+      this.stopMessageListener();
     },
     updateUnreadCount(count) {
       this.unreadCount = count; // Aggiorna il conteggio dei messaggi non letti
+    },
+    startMessageListener() {
+      if (!this.isLoggedIn || !this.nickname) return;
+
+      const messagesQuery = query(
+          collection(db, 'messages'),
+          where('to', '==', this.nickname),
+          where('read', '==', false)
+      );
+
+      this.unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
+        this.unreadCount = querySnapshot.size;
+      });
+    },
+    stopMessageListener() {
+      if (this.unsubscribe) {
+        this.unsubscribe();
+        this.unsubscribe = null;
+      }
     }
   }
 };
